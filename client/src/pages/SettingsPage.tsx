@@ -266,7 +266,7 @@ export const SettingsPage = () => {
                     <label className="label">Language</label>
                     <select
                       value={profileData.language}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, language: e.target.value }))}
+                      onChange={(e) => setProfileData(prev => ({ ...prev, language: e.target.value as 'en' | 'ur' | 'ar' }))}
                       className="input mt-1"
                     >
                       <option value="en">English</option>

@@ -15,7 +15,8 @@ import {
   StarIcon,
   BookOpenIcon,
   CalendarIcon,
-  AcademicCapIcon
+  AcademicCapIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 interface DisciplineRecord {

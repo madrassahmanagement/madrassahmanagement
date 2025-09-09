@@ -15,7 +15,8 @@ import {
   CalendarIcon,
   AcademicCapIcon,
   FireIcon,
-  TrophyIcon
+  TrophyIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 interface FitnessRecord {

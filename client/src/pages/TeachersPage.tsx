@@ -17,7 +17,8 @@ import {
   XCircleIcon,
   ClockIcon,
   StarIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 interface Teacher {

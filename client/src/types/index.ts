@@ -59,7 +59,7 @@ export interface Student {
   attendancePercentage: number;
   namazPercentage: number;
   status: 'active' | 'inactive' | 'suspended' | 'graduated' | 'transferred';
-  feeStatus: 'paid' | 'pending' | 'exempt';
+  feeStatus: 'paid' | 'pending' | 'exempt' | 'overdue';
   monthlyFee: number;
   user: User;
 }

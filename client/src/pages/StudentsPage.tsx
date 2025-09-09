@@ -373,14 +373,14 @@ export const StudentsPage = () => {
     setStudents(prevStudents => 
       prevStudents.map(student => 
         student.id === studentId 
-          ? { ...student, feeStatus: newStatus }
+          ? { ...student, feeStatus: newStatus as 'paid' | 'pending' | 'exempt' | 'overdue' }
           : student
       )
     );
     setFilteredStudents(prevStudents => 
       prevStudents.map(student => 
         student.id === studentId 
-          ? { ...student, feeStatus: newStatus }
+          ? { ...student, feeStatus: newStatus as 'paid' | 'pending' | 'exempt' | 'overdue' }
           : student
       ));
     

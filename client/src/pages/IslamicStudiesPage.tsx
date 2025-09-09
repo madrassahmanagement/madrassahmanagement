@@ -398,7 +398,7 @@ export const IslamicStudiesPage = () => {
                   toAyah: parseInt(formData.get('toAyah') as string),
                   completedAyahs: parseInt(formData.get('completedAyahs') as string),
                   progress: parseInt(formData.get('progress') as string),
-                  quality: formData.get('quality') as string,
+                  quality: formData.get('quality') as 'excellent' | 'good' | 'average' | 'needs_improvement',
                   teacherRemarks: formData.get('teacherRemarks') as string,
                   parentRemarks: formData.get('parentRemarks') as string
                 });

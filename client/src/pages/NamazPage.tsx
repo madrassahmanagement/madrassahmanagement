@@ -119,16 +119,16 @@ export const NamazPage = () => {
     if (existingRecord) {
       prayers = {
         ...existingRecord.prayers,
-        [prayer]: { prayed, time, location }
+        [prayer]: { prayed, time, location: location as 'madrassah' | 'home' | 'missed' }
       };
     } else {
       prayers = {
-        fajr: { prayed: false, location: 'missed' },
-        dhuhr: { prayed: false, location: 'missed' },
-        asr: { prayed: false, location: 'missed' },
-        maghrib: { prayed: false, location: 'missed' },
-        isha: { prayed: false, location: 'missed' },
-        [prayer]: { prayed, time, location }
+        fajr: { prayed: false, location: 'missed' as const },
+        dhuhr: { prayed: false, location: 'missed' as const },
+        asr: { prayed: false, location: 'missed' as const },
+        maghrib: { prayed: false, location: 'missed' as const },
+        isha: { prayed: false, location: 'missed' as const },
+        [prayer]: { prayed, time, location: location as 'madrassah' | 'home' | 'missed' }
       };
     }
 

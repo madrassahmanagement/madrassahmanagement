@@ -13,7 +13,9 @@ import {
   ClockIcon,
   StarIcon,
   HeartIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 interface ReportData {
