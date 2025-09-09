@@ -1,13 +1,20 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm ci --legacy-peer-deps && npm run build",
-  "outputDirectory": "client/dist",
-  "installCommand": "cd client && npm ci --legacy-peer-deps",
-  "framework": "vite",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist",
+        "installCommand": "npm install --legacy-peer-deps --no-audit --no-fund",
+        "buildCommand": "npm run build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
