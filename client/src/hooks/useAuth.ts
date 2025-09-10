@@ -5,23 +5,44 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuth = useCallback(() => {
+  const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (token) {
-      // In a real app, you would validate the token with the server
-      // For now, we'll just set a mock user
-      setUser({
-        id: '1',
-        firstName: 'Admin',
-        lastName: 'User',
-        email: 'admin@madrassah.com',
-        phone: '+1234567890',
-        role: 'admin',
-        language: 'en',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+      try {
+        // Try to validate token with server
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+          ? 'http://localhost:5000/api' 
+          : 'https://madrassahmanagement.vercel.app/api';
+
+        const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          // Token invalid, clear it
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+      } catch (error) {
+        // Fallback to mock user for demo
+        setUser({
+          id: '1',
+          firstName: 'Admin',
+          lastName: 'User',
+          email: 'admin@madrassah.com',
+          phone: '+1234567890',
+          role: 'admin',
+          language: 'en',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
     } else {
       setUser(null);
     }
@@ -34,8 +55,12 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string) => {
     try {
-      // Try real API first
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      // Use the API service for consistent URL handling
+      const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000/api' 
+        : 'https://madrassahmanagement.vercel.app/api';
+
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

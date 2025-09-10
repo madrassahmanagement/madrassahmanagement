@@ -101,6 +101,27 @@ app.get('/api/health', (req, res) => {
 });
 
 // Auth routes
+app.get('/api/auth/profile', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Profile error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;

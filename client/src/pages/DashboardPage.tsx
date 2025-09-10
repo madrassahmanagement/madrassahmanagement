@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { studentsAPI } from '../services/api';
 import { 
   UsersIcon, 
   UserGroupIcon, 
@@ -20,6 +21,7 @@ import {
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalTeachers: 24,
@@ -34,21 +36,15 @@ export const DashboardPage = () => {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/students', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const students = data.students || data.data || [];
-          setStats(prev => ({
-            ...prev,
-            totalStudents: students.length,
-            totalClasses: new Set(students.map((s: any) => s.currentClass?.name || s.currentClass)).size
-          }));
-        }
+        setIsLoading(true);
+        const response = await studentsAPI.getAll();
+        const students = response.data || [];
+        
+        setStats(prev => ({
+          ...prev,
+          totalStudents: students.length,
+          totalClasses: new Set(students.map((s: any) => s.currentClass?.name || s.currentClass)).size
+        }));
       } catch (error) {
         console.error('Error loading stats:', error);
         
@@ -62,6 +58,8 @@ export const DashboardPage = () => {
             totalClasses: new Set(students.map((s: any) => s.currentClass)).size
           }));
         }
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -83,7 +81,6 @@ export const DashboardPage = () => {
       icon: ClipboardDocumentCheckIcon, 
       color: 'bg-blue-500',
       action: () => {
-        toast.success('Opening Attendance Page...');
         navigate('/attendance');
       }
     },
@@ -93,7 +90,6 @@ export const DashboardPage = () => {
       icon: BookOpenIcon, 
       color: 'bg-green-500',
       action: () => {
-        toast.success('Opening Namaz Tracking...');
         navigate('/namaz');
       }
     },
@@ -103,7 +99,6 @@ export const DashboardPage = () => {
       icon: AcademicCapIcon, 
       color: 'bg-purple-500',
       action: () => {
-        toast.success('Opening Islamic Studies...');
         navigate('/islamic-studies');
       }
     },
@@ -113,7 +108,6 @@ export const DashboardPage = () => {
       icon: ExclamationTriangleIcon, 
       color: 'bg-red-500',
       action: () => {
-        toast.success('Opening Discipline Management...');
         navigate('/discipline');
       }
     },
@@ -123,7 +117,6 @@ export const DashboardPage = () => {
       icon: HeartIcon, 
       color: 'bg-pink-500',
       action: () => {
-        toast.success('Opening Fitness Tracking...');
         navigate('/fitness');
       }
     },
@@ -133,7 +126,6 @@ export const DashboardPage = () => {
       icon: ChartBarIcon, 
       color: 'bg-indigo-500',
       action: () => {
-        toast.success('Opening Reports...');
         navigate('/reports');
       }
     }
@@ -151,6 +143,16 @@ export const DashboardPage = () => {
         return <ClockIcon className="h-3 w-3 sm:h-5 sm:w-5 text-gray-500" />;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
