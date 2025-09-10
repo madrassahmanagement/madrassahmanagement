@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Teacher = require('../models/Teacher');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Get all teachers
-router.get('/', auth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const teachers = await Teacher.find()
       .populate('user', 'firstName lastName email phone role')
@@ -24,7 +24,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Get teacher by ID
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id)
       .populate('user', 'firstName lastName email phone role');
@@ -50,7 +50,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // Create new teacher
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
       teacherId,
@@ -105,7 +105,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Update teacher
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const {
       subjects,
@@ -156,7 +156,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete teacher (soft delete)
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const teacher = await Teacher.findByIdAndUpdate(
       req.params.id,
@@ -188,7 +188,7 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // Get teacher performance
-router.get('/:id/performance', auth, async (req, res) => {
+router.get('/:id/performance', authenticateToken, async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     

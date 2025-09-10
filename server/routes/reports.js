@@ -3,10 +3,10 @@ const router = express.Router();
 const Report = require('../models/Report');
 const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Get all reports
-router.get('/', auth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const reports = await Report.find()
       .populate('generatedBy', 'firstName lastName email')
@@ -26,7 +26,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Generate new report
-router.post('/generate', auth, async (req, res) => {
+router.post('/generate', authenticateToken, async (req, res) => {
   try {
     const { type, dateRange, title } = req.body;
     

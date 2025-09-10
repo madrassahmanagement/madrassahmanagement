@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const DisciplineRecord = require('../models/DisciplineRecord');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Get all discipline records
-router.get('/', auth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const { studentId, type, status, classId, startDate, endDate } = req.query;
     
@@ -42,7 +42,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Get discipline record by ID
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const record = await DisciplineRecord.findById(req.params.id)
       .populate('student', 'studentId user')
@@ -71,7 +71,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // Create new discipline record
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
       student,
@@ -118,7 +118,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Update discipline record
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const {
       type,
@@ -175,7 +175,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete discipline record
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const record = await DisciplineRecord.findByIdAndDelete(req.params.id);
 
@@ -200,7 +200,7 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // Get student discipline summary
-router.get('/student/:studentId/summary', auth, async (req, res) => {
+router.get('/student/:studentId/summary', authenticateToken, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     

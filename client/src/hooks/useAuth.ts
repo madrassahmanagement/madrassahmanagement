@@ -91,6 +91,8 @@ export const useAuth = () => {
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setUser(null);
+    // Force a page reload to ensure clean state
+    window.location.href = '/login';
   }, []);
 
   return {

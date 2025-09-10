@@ -45,6 +45,11 @@ export const AddStudentPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 
+  // Reusable input classes for consistent styling
+  const inputClasses = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-200";
+  const selectClasses = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors duration-200";
+  const textareaClasses = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-200";
+
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<StudentFormData>({
     defaultValues: {
       admissionDate: new Date().toISOString().split('T')[0],
@@ -178,8 +183,8 @@ export const AddStudentPage = () => {
             <ArrowLeftIcon className="h-6 w-6" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Add New Student</h1>
-            <p className="text-sm text-gray-500">Complete all steps to register a new student</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add New Student</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Complete all steps to register a new student</p>
           </div>
         </div>
         <StepIndicator />
@@ -188,20 +193,20 @@ export const AddStudentPage = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Step 1: Personal Information */}
         {currentStep === 1 && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
             <div className="flex items-center mb-6">
               <UserCircleIcon className="h-6 w-6 text-primary-600 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Personal Information</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Personal Information</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   First Name *
                 </label>
                 <input
                   {...register('firstName', { required: 'First name is required' })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
                 {errors.firstName && (
                   <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
@@ -209,12 +214,12 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Last Name *
                 </label>
                 <input
                   {...register('lastName', { required: 'Last name is required' })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
                 {errors.lastName && (
                   <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
@@ -222,7 +227,7 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email *
                 </label>
                 <input
@@ -234,7 +239,7 @@ export const AddStudentPage = () => {
                       message: 'Invalid email address'
                     }
                   })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -242,13 +247,13 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Phone *
                 </label>
                 <input
                   type="tel"
                   {...register('phone', { required: 'Phone is required' })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
                 {errors.phone && (
                   <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
@@ -256,13 +261,13 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Date of Birth *
                 </label>
                 <input
                   type="date"
                   {...register('dateOfBirth', { required: 'Date of birth is required' })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
                 {errors.dateOfBirth && (
                   <p className="mt-1 text-sm text-red-600">{errors.dateOfBirth.message}</p>
@@ -270,12 +275,12 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Blood Group
                 </label>
                 <select
                   {...register('bloodGroup')}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={selectClasses}
                 >
                   <option value="">Select Blood Group</option>
                   {bloodGroups.map(group => (
@@ -285,13 +290,13 @@ export const AddStudentPage = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Address *
                 </label>
                 <textarea
                   {...register('address', { required: 'Address is required' })}
                   rows={3}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={textareaClasses}
                 />
                 {errors.address && (
                   <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>
@@ -299,24 +304,24 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Allergies (comma-separated)
                 </label>
                 <input
                   {...register('allergies')}
                   placeholder="e.g., Peanuts, Dust"
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Medical Conditions (comma-separated)
                 </label>
                 <input
                   {...register('medicalConditions')}
                   placeholder="e.g., Asthma, Diabetes"
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
               </div>
             </div>
@@ -325,23 +330,23 @@ export const AddStudentPage = () => {
 
         {/* Step 2: Guardian Information */}
         {currentStep === 2 && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
             <div className="flex items-center mb-6">
               <UserGroupIcon className="h-6 w-6 text-primary-600 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Guardian Information</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Guardian Information</h2>
             </div>
             
             <div className="space-y-6">
               <div>
-                <h3 className="text-md font-medium text-gray-900 mb-4">Father's Information</h3>
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Father's Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Father's Name *
                     </label>
                     <input
                       {...register('guardianName', { required: 'Father\'s name is required' })}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                     {errors.guardianName && (
                       <p className="mt-1 text-sm text-red-600">{errors.guardianName.message}</p>
@@ -349,13 +354,13 @@ export const AddStudentPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Father's Phone *
                     </label>
                     <input
                       type="tel"
                       {...register('guardianPhone', { required: 'Father\'s phone is required' })}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                     {errors.guardianPhone && (
                       <p className="mt-1 text-sm text-red-600">{errors.guardianPhone.message}</p>
@@ -363,85 +368,85 @@ export const AddStudentPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Father's Occupation
                     </label>
                     <input
                       {...register('guardianOccupation')}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Father's CNIC
                     </label>
                     <input
                       {...register('guardianCNIC')}
                       placeholder="12345-1234567-1"
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Father's Email
                     </label>
                     <input
                       type="email"
                       {...register('guardianEmail')}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                 </div>
               </div>
 
               <div className="border-t pt-6">
-                <h3 className="text-md font-medium text-gray-900 mb-4">Mother's Information</h3>
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Mother's Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Mother's Name
                     </label>
                     <input
                       {...register('motherName')}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Mother's Phone
                     </label>
                     <input
                       type="tel"
                       {...register('motherPhone')}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Mother's Occupation
                     </label>
                     <input
                       {...register('motherOccupation')}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                   </div>
                 </div>
               </div>
 
               <div className="border-t pt-6">
-                <h3 className="text-md font-medium text-gray-900 mb-4">Emergency Contact</h3>
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Emergency Contact</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Emergency Contact Name *
                     </label>
                     <input
                       {...register('emergencyContactName', { required: 'Emergency contact name is required' })}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                     {errors.emergencyContactName && (
                       <p className="mt-1 text-sm text-red-600">{errors.emergencyContactName.message}</p>
@@ -449,13 +454,13 @@ export const AddStudentPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Emergency Contact Phone *
                     </label>
                     <input
                       type="tel"
                       {...register('emergencyContactPhone', { required: 'Emergency contact phone is required' })}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={inputClasses}
                     />
                     {errors.emergencyContactPhone && (
                       <p className="mt-1 text-sm text-red-600">{errors.emergencyContactPhone.message}</p>
@@ -463,12 +468,12 @@ export const AddStudentPage = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Relationship *
                     </label>
                     <select
                       {...register('emergencyContactRelationship', { required: 'Relationship is required' })}
-                      className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                      className={selectClasses}
                     >
                       <option value="">Select Relationship</option>
                       <option value="Uncle">Uncle</option>
@@ -490,20 +495,20 @@ export const AddStudentPage = () => {
 
         {/* Step 3: Academic Information */}
         {currentStep === 3 && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
             <div className="flex items-center mb-6">
               <AcademicCapIcon className="h-6 w-6 text-primary-600 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Academic Information</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Academic Information</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Class *
                 </label>
                 <select
                   {...register('classId', { required: 'Class is required' })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={selectClasses}
                 >
                   <option value="">Select Class</option>
                   {classes.map((cls) => (
@@ -518,13 +523,13 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Admission Date *
                 </label>
                 <input
                   type="date"
                   {...register('admissionDate', { required: 'Admission date is required' })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
                 {errors.admissionDate && (
                   <p className="mt-1 text-sm text-red-600">{errors.admissionDate.message}</p>
@@ -532,7 +537,7 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Monthly Fee (PKR)
                 </label>
                 <input
@@ -541,7 +546,7 @@ export const AddStudentPage = () => {
                     required: 'Monthly fee is required',
                     min: { value: 0, message: 'Fee must be positive' }
                   })}
-                  className="w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                  className={inputClasses}
                 />
                 {errors.monthlyFee && (
                   <p className="mt-1 text-sm text-red-600">{errors.monthlyFee.message}</p>
@@ -553,17 +558,17 @@ export const AddStudentPage = () => {
 
         {/* Step 4: Review & Submit */}
         {currentStep === 4 && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
             <div className="flex items-center mb-6">
               <CalendarIcon className="h-6 w-6 text-primary-600 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Review & Submit</h2>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Review & Submit</h2>
             </div>
             
             <div className="space-y-6">
               <div>
-                <h3 className="text-md font-medium text-gray-900 mb-3">Personal Information</h3>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3">Personal Information</h3>
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md transition-colors duration-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-900 dark:text-gray-100">
                     <div><span className="font-medium">Name:</span> {watch('firstName')} {watch('lastName')}</div>
                     <div><span className="font-medium">Email:</span> {watch('email')}</div>
                     <div><span className="font-medium">Phone:</span> {watch('phone')}</div>
@@ -575,9 +580,9 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <h3 className="text-md font-medium text-gray-900 mb-3">Guardian Information</h3>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3">Guardian Information</h3>
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md transition-colors duration-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-900 dark:text-gray-100">
                     <div><span className="font-medium">Father:</span> {watch('guardianName')}</div>
                     <div><span className="font-medium">Father's Phone:</span> {watch('guardianPhone')}</div>
                     <div><span className="font-medium">Mother:</span> {watch('motherName') || 'Not specified'}</div>
@@ -587,9 +592,9 @@ export const AddStudentPage = () => {
               </div>
 
               <div>
-                <h3 className="text-md font-medium text-gray-900 mb-3">Academic Information</h3>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3">Academic Information</h3>
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md transition-colors duration-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-900 dark:text-gray-100">
                     <div><span className="font-medium">Class:</span> {classes.find(c => c.id === watch('classId'))?.name || 'Not selected'}</div>
                     <div><span className="font-medium">Admission Date:</span> {watch('admissionDate')}</div>
                     <div><span className="font-medium">Monthly Fee:</span> PKR {watch('monthlyFee')}</div>
@@ -641,3 +646,5 @@ export const AddStudentPage = () => {
     </div>
   );
 };
+
+

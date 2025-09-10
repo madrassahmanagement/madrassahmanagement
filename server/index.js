@@ -23,7 +23,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/madrassah_mms', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://username:password@ac-sp4wf2v.oabaamy.mongodb.net/madrassah_mms?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })

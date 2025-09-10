@@ -218,7 +218,10 @@ export const StudentsPage = () => {
         setFilteredStudents(transformedStudents);
       } catch (error) {
         console.error('Error loading students:', error);
-        toast.error('Failed to load students from API, using mock data');
+        // Only show error toast if it's not a mock token
+        if (token !== 'mock-token') {
+          toast.error('Failed to load students from API, using mock data');
+        }
         
         // Fallback to localStorage if API fails
         const storedStudents = localStorage.getItem('students');

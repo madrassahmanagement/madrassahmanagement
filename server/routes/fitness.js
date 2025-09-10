@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const FitnessRecord = require('../models/FitnessRecord');
-const auth = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Get all fitness records
-router.get('/', auth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const { studentId, activity, intensity, classId, startDate, endDate } = req.query;
     
@@ -42,7 +42,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Get fitness record by ID
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const record = await FitnessRecord.findById(req.params.id)
       .populate('student', 'studentId user')
@@ -71,7 +71,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // Create new fitness record
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const {
       student,
@@ -125,7 +125,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Update fitness record
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const {
       activity,
@@ -179,7 +179,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete fitness record
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const record = await FitnessRecord.findByIdAndDelete(req.params.id);
 
@@ -204,7 +204,7 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // Get student fitness summary
-router.get('/student/:studentId/summary', auth, async (req, res) => {
+router.get('/student/:studentId/summary', authenticateToken, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     
@@ -245,7 +245,7 @@ router.get('/student/:studentId/summary', auth, async (req, res) => {
 });
 
 // Get fitness analytics
-router.get('/analytics/overview', auth, async (req, res) => {
+router.get('/analytics/overview', authenticateToken, async (req, res) => {
   try {
     const { startDate, endDate, classId } = req.query;
     

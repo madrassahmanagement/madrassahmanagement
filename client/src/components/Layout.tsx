@@ -22,7 +22,6 @@ export const Layout = ({ children }: LayoutProps) => {
   const handleLogout = () => {
     logout();
     toast.success('Logged out successfully');
-    navigate('/login');
   };
 
   return (
@@ -52,7 +51,9 @@ export const Layout = ({ children }: LayoutProps) => {
               
               <div className="flex items-center space-x-2 sm:space-x-4">
                 {/* Theme Toggle */}
-                <ThemeToggle />
+                <div className="flex items-center">
+                  <ThemeToggle />
+                </div>
 
                 {/* Notifications */}
                 <button className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-gray-200 relative transition-colors duration-200">
