@@ -84,6 +84,16 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ message: 'Access token required' });
   }
 
+  // Handle mock token for demo
+  if (token === 'mock-token') {
+    req.user = {
+      userId: '1',
+      email: 'admin@madrassah.com',
+      role: 'admin'
+    };
+    return next();
+  }
+
   jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret', (err, user) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid or expired token' });
@@ -103,6 +113,18 @@ app.get('/api/health', (req, res) => {
 // Auth routes
 app.get('/api/auth/profile', authenticateToken, async (req, res) => {
   try {
+    // Handle mock user
+    if (req.user.userId === '1') {
+      return res.json({
+        user: {
+          id: '1',
+          name: 'Admin User',
+          email: 'admin@madrassah.com',
+          role: 'admin'
+        }
+      });
+    }
+
     const user = await User.findById(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });

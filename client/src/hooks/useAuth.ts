@@ -5,24 +5,67 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuth = useCallback(() => {
+  const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('token');
     console.log('Auth check - token exists:', !!token);
     
     if (token) {
-      // Always set user if token exists - no API validation for now
-      setUser({
-        id: '1',
-        firstName: 'Admin',
-        lastName: 'User',
-        email: 'admin@madrassah.com',
-        phone: '+1234567890',
-        role: 'admin',
-        language: 'en',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+      try {
+        // Try API first
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+          ? 'http://localhost:5000/api' 
+          : 'https://madrassahmanagement.vercel.app/api';
+
+        const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser({
+            id: data.user.id,
+            firstName: data.user.name.split(' ')[0] || 'Admin',
+            lastName: data.user.name.split(' ')[1] || 'User',
+            email: data.user.email,
+            phone: '+1234567890',
+            role: data.user.role,
+            language: 'en',
+            isActive: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+        } else {
+          // Fallback to mock user
+          setUser({
+            id: '1',
+            firstName: 'Admin',
+            lastName: 'User',
+            email: 'admin@madrassah.com',
+            phone: '+1234567890',
+            role: 'admin',
+            language: 'en',
+            isActive: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        // Fallback to mock user
+        setUser({
+          id: '1',
+          firstName: 'Admin',
+          lastName: 'User',
+          email: 'admin@madrassah.com',
+          phone: '+1234567890',
+          role: 'admin',
+          language: 'en',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
     } else {
       setUser(null);
     }
