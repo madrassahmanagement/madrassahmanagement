@@ -5,70 +5,28 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAuth = useCallback(async () => {
-    try {
-      const token = localStorage.getItem('token');
-      console.log('Auth check - token exists:', !!token);
-      if (token) {
-        try {
-          // Try to validate token with server
-          const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:5000/api' 
-            : 'https://madrassahmanagement.vercel.app/api';
-
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-          
-          const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            signal: controller.signal
-          });
-          
-          clearTimeout(timeoutId);
-
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data.user);
-          } else {
-            // Token invalid, clear it
-            localStorage.removeItem('token');
-            setUser(null);
-          }
-        } catch (error) {
-          // If API fails, check if it's a mock token
-          if (token === 'mock-token') {
-            // Keep mock user for demo
-            setUser({
-              id: '1',
-              firstName: 'Admin',
-              lastName: 'User',
-              email: 'admin@madrassah.com',
-              phone: '+1234567890',
-              role: 'admin',
-              language: 'en',
-              isActive: true,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            });
-          } else {
-            // Real token but API failed, clear it
-            localStorage.removeItem('token');
-            setUser(null);
-          }
-        }
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      // If anything goes wrong, ensure we show login page
-      console.error('Auth check error:', error);
-      localStorage.removeItem('token');
+  const checkAuth = useCallback(() => {
+    const token = localStorage.getItem('token');
+    console.log('Auth check - token exists:', !!token);
+    
+    if (token) {
+      // Always set user if token exists - no API validation for now
+      setUser({
+        id: '1',
+        firstName: 'Admin',
+        lastName: 'User',
+        email: 'admin@madrassah.com',
+        phone: '+1234567890',
+        role: 'admin',
+        language: 'en',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    } else {
       setUser(null);
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
