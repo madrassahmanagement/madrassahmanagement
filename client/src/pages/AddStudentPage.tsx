@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { studentsAPI } from '../services/api';
 import { 
   UserCircleIcon,
   AcademicCapIcon,
@@ -76,60 +77,46 @@ export const AddStudentPage = () => {
   const onSubmit = async (data: StudentFormData) => {
     setIsSubmitting(true);
     try {
-      // Call the actual API
-      const response = await fetch('http://localhost:5000/api/students', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          phone: data.phone,
-          dateOfBirth: data.dateOfBirth,
-          address: data.address,
-          currentClass: data.classId,
-          section: 'A', // Default section
-          rollNumber: String(Math.floor(Math.random() * 50) + 1).padStart(3, '0'),
-          guardian: {
-            father: {
-              name: data.guardianName,
-              phone: data.guardianPhone,
-              occupation: data.guardianOccupation,
-              cnic: data.guardianCNIC
-            },
-            mother: {
-              name: data.motherName,
-              phone: data.motherPhone,
-              occupation: data.motherOccupation
-            },
-            emergencyContact: {
-              name: data.emergencyContactName,
-              relationship: data.emergencyContactRelationship,
-              phone: data.emergencyContactPhone
-            }
+      // Use the API service instead of direct fetch
+      const response = await studentsAPI.create({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        dateOfBirth: data.dateOfBirth,
+        address: data.address,
+        currentClass: data.classId,
+        section: 'A', // Default section
+        rollNumber: String(Math.floor(Math.random() * 50) + 1).padStart(3, '0'),
+        guardian: {
+          father: {
+            name: data.guardianName,
+            phone: data.guardianPhone,
+            occupation: data.guardianOccupation,
+            cnic: data.guardianCNIC
           },
-          health: {
-            bloodGroup: data.bloodGroup,
-            allergies: data.allergies ? data.allergies.split(',').map(a => a.trim()) : [],
-            medicalConditions: data.medicalConditions ? data.medicalConditions.split(',').map(c => c.trim()) : []
+          mother: {
+            name: data.motherName,
+            phone: data.motherPhone,
+            occupation: data.motherOccupation
+          },
+          emergencyContact: {
+            name: data.emergencyContactName,
+            relationship: data.emergencyContactRelationship,
+            phone: data.emergencyContactPhone
           }
-        })
+        },
+        health: {
+          bloodGroup: data.bloodGroup,
+          allergies: data.allergies ? data.allergies.split(',').map(a => a.trim()) : [],
+          medicalConditions: data.medicalConditions ? data.medicalConditions.split(',').map(c => c.trim()) : []
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create student');
-      }
-
-      const result = await response.json();
       
       toast.success('Student added successfully!');
       navigate('/students');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to add student');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || 'Failed to add student');
       console.error('Error adding student:', error);
     } finally {
       setIsSubmitting(false);
