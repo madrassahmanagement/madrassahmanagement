@@ -1,16 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "installCommand": "npm install --legacy-peer-deps --no-audit --no-fund",
-        "buildCommand": "npm run build"
-      }
-    }
-  ],
+  "buildCommand": "cd client && npm install --legacy-peer-deps --no-audit --no-fund && npm run build",
+  "outputDirectory": "client/dist",
   "rewrites": [
     {
       "source": "/(.*)",
