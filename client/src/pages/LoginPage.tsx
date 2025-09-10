@@ -8,7 +8,7 @@ export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, user } = useAuth();
+  const { login, user, clearAuth } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -103,6 +103,20 @@ export const LoginPage = () => {
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 transition-colors duration-200"
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </div>
+
+          {/* Debug button - remove in production */}
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                clearAuth();
+                toast.success('Auth cleared - please refresh page');
+              }}
+              className="w-full text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              Clear Auth & Refresh
             </button>
           </div>
         </form>
