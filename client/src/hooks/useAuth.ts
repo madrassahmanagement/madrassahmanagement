@@ -94,6 +94,7 @@ export const useAuth = () => {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         setUser(data.user);
+        console.log('Login successful with real API');
         return { success: true };
       } else {
         // Fallback to mock login for demo
@@ -112,6 +113,7 @@ export const useAuth = () => {
         
         localStorage.setItem('token', 'mock-token');
         setUser(mockUser);
+        console.log('Login successful with mock user');
         return { success: true };
       }
     } catch (error) {
@@ -131,6 +133,7 @@ export const useAuth = () => {
       
       localStorage.setItem('token', 'mock-token');
       setUser(mockUser);
+      console.log('Login successful with mock user (fallback)');
       return { success: true };
     }
   };

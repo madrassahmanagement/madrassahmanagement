@@ -27,10 +27,8 @@ export const LoginPage = () => {
       
       if (result.success) {
         toast.success('Login successful!');
-        // Small delay to ensure state is updated
-        setTimeout(() => {
-          navigate('/', { replace: true });
-        }, 100);
+        // Force immediate navigation
+        window.location.href = '/';
       } else {
         toast.error('Login failed. Please try again.');
       }
@@ -106,8 +104,8 @@ export const LoginPage = () => {
             </button>
           </div>
 
-          {/* Debug button - remove in production */}
-          <div className="mt-4">
+          {/* Debug buttons - remove in production */}
+          <div className="mt-4 space-y-2">
             <button
               type="button"
               onClick={() => {
@@ -117,6 +115,26 @@ export const LoginPage = () => {
               className="w-full text-xs text-gray-500 hover:text-gray-700 underline"
             >
               Clear Auth & Refresh
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const result = await login('test@test.com', 'password');
+                  if (result.success) {
+                    toast.success('Test login successful!');
+                    window.location.href = '/';
+                  }
+                } catch (error) {
+                  toast.error('Test login failed');
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="w-full text-xs text-blue-500 hover:text-blue-700 underline"
+            >
+              Test Login (Any Email/Password)
             </button>
           </div>
         </form>
