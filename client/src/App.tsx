@@ -64,10 +64,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={renderPortal()} />
-      </Routes>
+      {renderPortal()}
     </ThemeProvider>
   )
 }

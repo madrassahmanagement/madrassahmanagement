@@ -10,65 +10,23 @@ export const useAuth = () => {
     const storedRole = localStorage.getItem('userRole');
     console.log('Auth check - token exists:', !!token, 'stored role:', storedRole);
     
-    if (token) {
-      try {
-        // Try API first
-        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-          ? 'http://localhost:5000/api' 
-          : 'https://madrassahmanagement.vercel.app/api';
-
-        const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser({
-            id: data.user.id,
-            firstName: data.user.name.split(' ')[0] || 'Admin',
-            lastName: data.user.name.split(' ')[1] || 'User',
-            email: data.user.email,
-            phone: '+1234567890',
-            role: data.user.role,
-            language: 'en',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          });
-        } else {
-          // Fallback to mock user with stored role
-          const role = storedRole as any || 'admin';
-          setUser({
-            id: '1',
-            firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
-            lastName: 'User',
-            email: 'admin@madrassah.com',
-            phone: '+1234567890',
-            role: role,
-            language: 'en',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          });
-        }
-      } catch (error) {
-        // Fallback to mock user with stored role
-        const role = storedRole as any || 'admin';
-        setUser({
-          id: '1',
-          firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
-          lastName: 'User',
-          email: 'admin@madrassah.com',
-          phone: '+1234567890',
-          role: role,
-          language: 'en',
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-      }
+    if (token && storedRole) {
+      // Use mock user with stored role (simplified for demo)
+      const role = storedRole as any;
+      const mockUser = {
+        id: '1',
+        firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
+        lastName: 'User',
+        email: 'admin@madrassah.com',
+        phone: '+1234567890',
+        role: role,
+        language: 'en',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      console.log('checkAuth: Setting user from localStorage:', mockUser);
+      setUser(mockUser);
     } else {
       setUser(null);
     }
@@ -77,83 +35,34 @@ export const useAuth = () => {
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   const login = useCallback(async (email: string, password: string, role?: string) => {
-    try {
-      // Use the API service for consistent URL handling
-      const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:5000/api' 
-        : 'https://madrassahmanagement.vercel.app/api';
-
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        setUser(data.user);
-        console.log('Login successful with real API');
-        return { success: true };
-      } else {
-        // Fallback to mock login for demo
-        const mockUser: User = {
-          id: '1',
-          firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
-          lastName: 'User',
-          email: email,
-          phone: '+1234567890',
-          role: role as any || 'admin',
-          language: 'en',
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        
-        localStorage.setItem('token', 'mock-token');
-        localStorage.setItem('userRole', role || 'admin');
-        console.log('Setting user state with mock user:', mockUser);
-        setUser(mockUser);
-        console.log('Login successful with mock user');
-        // Return a promise that resolves after state update
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({ success: true });
-          }, 100);
-        });
-      }
-    } catch (error) {
-      // Fallback to mock login for demo
-      const mockUser: User = {
-        id: '1',
-        firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
-        lastName: 'User',
-        email: email,
-        phone: '+1234567890',
-        role: role as any || 'admin',
-        language: 'en',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      localStorage.setItem('token', 'mock-token');
-      localStorage.setItem('userRole', role || 'admin');
-      console.log('Setting user state with mock user (fallback):', mockUser);
-      setUser(mockUser);
-      console.log('Login successful with mock user (fallback)');
-      // Return a promise that resolves after state update
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({ success: true });
-        }, 100);
-      });
-    }
+    console.log('Login called with role:', role);
+    
+    // Create mock user (simplified for demo)
+    const mockUser: User = {
+      id: '1',
+      firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
+      lastName: 'User',
+      email: email,
+      phone: '+1234567890',
+      role: role as any || 'admin',
+      language: 'en',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Store in localStorage
+    localStorage.setItem('token', 'mock-token');
+    localStorage.setItem('userRole', role || 'admin');
+    
+    console.log('Login: Setting user state:', mockUser);
+    setUser(mockUser);
+    console.log('Login: User state set successfully');
+    
+    return { success: true };
   }, []);
 
   const logout = useCallback(() => {
