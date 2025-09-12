@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Navigation } from './Navigation';
+import { RoleBasedNavigation } from './RoleBasedNavigation';
 import { ThemeToggle } from './ThemeToggle';
 import toast from 'react-hot-toast';
 import { 
@@ -28,12 +28,12 @@ export const Layout = ({ children }: LayoutProps) => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row transition-colors duration-200">
       {/* Mobile Navigation */}
       <div className="lg:hidden">
-        <Navigation />
+        <RoleBasedNavigation />
       </div>
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
-        <Navigation />
+        <RoleBasedNavigation />
       </div>
 
       {/* Main content area */}

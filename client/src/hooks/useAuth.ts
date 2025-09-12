@@ -7,7 +7,8 @@ export const useAuth = () => {
 
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('token');
-    console.log('Auth check - token exists:', !!token);
+    const storedRole = localStorage.getItem('userRole');
+    console.log('Auth check - token exists:', !!token, 'stored role:', storedRole);
     
     if (token) {
       try {
@@ -37,14 +38,15 @@ export const useAuth = () => {
             updatedAt: new Date().toISOString()
           });
         } else {
-          // Fallback to mock user
+          // Fallback to mock user with stored role
+          const role = storedRole as any || 'admin';
           setUser({
             id: '1',
-            firstName: 'Admin',
+            firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
             lastName: 'User',
             email: 'admin@madrassah.com',
             phone: '+1234567890',
-            role: 'admin',
+            role: role,
             language: 'en',
             isActive: true,
             createdAt: new Date().toISOString(),
@@ -52,14 +54,15 @@ export const useAuth = () => {
           });
         }
       } catch (error) {
-        // Fallback to mock user
+        // Fallback to mock user with stored role
+        const role = storedRole as any || 'admin';
         setUser({
           id: '1',
-          firstName: 'Admin',
+          firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
           lastName: 'User',
           email: 'admin@madrassah.com',
           phone: '+1234567890',
-          role: 'admin',
+          role: role,
           language: 'en',
           isActive: true,
           createdAt: new Date().toISOString(),
@@ -76,7 +79,7 @@ export const useAuth = () => {
     checkAuth();
   }, [checkAuth]);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, role?: string) => {
     try {
       // Use the API service for consistent URL handling
       const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
@@ -101,11 +104,11 @@ export const useAuth = () => {
         // Fallback to mock login for demo
         const mockUser: User = {
           id: '1',
-          firstName: 'Admin',
+          firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
           lastName: 'User',
           email: email,
           phone: '+1234567890',
-          role: 'admin',
+          role: role as any || 'admin',
           language: 'en',
           isActive: true,
           createdAt: new Date().toISOString(),
@@ -113,19 +116,26 @@ export const useAuth = () => {
         };
         
         localStorage.setItem('token', 'mock-token');
+        localStorage.setItem('userRole', role || 'admin');
+        console.log('Setting user state with mock user:', mockUser);
         setUser(mockUser);
         console.log('Login successful with mock user');
-        return { success: true };
+        // Return a promise that resolves after state update
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ success: true });
+          }, 100);
+        });
       }
     } catch (error) {
       // Fallback to mock login for demo
       const mockUser: User = {
         id: '1',
-        firstName: 'Admin',
+        firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
         lastName: 'User',
         email: email,
         phone: '+1234567890',
-        role: 'admin',
+        role: role as any || 'admin',
         language: 'en',
         isActive: true,
         createdAt: new Date().toISOString(),
@@ -133,14 +143,22 @@ export const useAuth = () => {
       };
       
       localStorage.setItem('token', 'mock-token');
+      localStorage.setItem('userRole', role || 'admin');
+      console.log('Setting user state with mock user (fallback):', mockUser);
       setUser(mockUser);
       console.log('Login successful with mock user (fallback)');
-      return { success: true };
+      // Return a promise that resolves after state update
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ success: true });
+        }, 100);
+      });
     }
-  };
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
     setUser(null);
     // Force a page reload to ensure clean state
     window.location.href = '/login';
@@ -148,6 +166,7 @@ export const useAuth = () => {
 
   const clearAuth = useCallback(() => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
     setUser(null);
   }, []);
 

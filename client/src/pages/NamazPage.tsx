@@ -38,6 +38,31 @@ interface NamazRecord {
     maghrib: { prayed: boolean; time?: string; location: 'madrassah' | 'home' | 'missed' };
     isha: { prayed: boolean; time?: string; location: 'madrassah' | 'home' | 'missed' };
   };
+  familyInteraction: {
+    handKiss: boolean;
+    behaviorRating: number; // 1-5 stars
+    description?: string;
+  };
+  newLearning: {
+    hadith: {
+      learned: boolean;
+      text?: string;
+      reference?: string;
+    };
+    sunnah: {
+      learned: boolean;
+      description?: string;
+    };
+    other: {
+      learned: boolean;
+      description?: string;
+    };
+  };
+  weeklyReflection: {
+    question: string;
+    answer?: string; // 200 words max
+    answered: boolean;
+  };
   totalPrayers: number;
   prayedCount: number;
   percentage: number;
@@ -472,6 +497,126 @@ export const NamazPage = () => {
           </div>
         </div>
       )}
+
+      {/* Family Interaction & Learning Section */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Family Interaction & Learning - {new Date(selectedDate).toLocaleDateString()}
+          </h3>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Family Interaction */}
+            <div className="space-y-4">
+              <h4 className="text-md font-medium text-gray-900">Family Interaction</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Hand Kiss (Hathon ka Boss):</span>
+                  <div className="flex space-x-2">
+                    <button className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                      Yes
+                    </button>
+                    <button className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                      No
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Behavior Rating:</span>
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="text-lg text-yellow-400">★</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Description:</label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    rows={2}
+                    placeholder="Describe the child's behavior at home..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* New Learning */}
+            <div className="space-y-4">
+              <h4 className="text-md font-medium text-gray-900">New Learning</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">New Hadith Learned:</span>
+                  <div className="flex space-x-2">
+                    <button className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                      Yes
+                    </button>
+                    <button className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                      No
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Hadith Text:</label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    rows={2}
+                    placeholder="Enter the hadith text..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Reference:</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    placeholder="e.g., Sahih Bukhari, Book 1, Hadith 1"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">New Sunnah Learned:</span>
+                  <div className="flex space-x-2">
+                    <button className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                      Yes
+                    </button>
+                    <button className="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                      No
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Sunnah Description:</label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    rows={2}
+                    placeholder="Describe the sunnah learned..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Weekly Reflection */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h4 className="text-md font-medium text-gray-900 mb-3">Weekly Reflection Question</h4>
+            <div className="space-y-3">
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-700 font-medium">
+                  "What new Islamic knowledge did you learn this week? How will you apply it in your daily life?"
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Your Answer (200 words max):</label>
+                <textarea
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  rows={4}
+                  placeholder="Share your thoughts and reflections..."
+                  maxLength={200}
+                />
+                <p className="text-xs text-gray-500 mt-1">0/200 words</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Recent Namaz Records */}
       <div className="bg-white shadow rounded-lg">

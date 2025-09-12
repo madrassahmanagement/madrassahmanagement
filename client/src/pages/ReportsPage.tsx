@@ -1,594 +1,585 @@
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import {
-  ChartBarIcon,
-  DocumentArrowDownIcon,
-  CalendarIcon,
-  FunnelIcon,
-  EyeIcon,
-  PrinterIcon,
-  ShareIcon,
-  AcademicCapIcon,
-  UserGroupIcon,
-  ClockIcon,
-  StarIcon,
-  HeartIcon,
-  ExclamationTriangleIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
-
-interface ReportData {
-  id: string;
-  title: string;
-  type: 'attendance' | 'performance' | 'discipline' | 'fitness' | 'fees' | 'comprehensive';
-  dateRange: string;
-  generatedBy: string;
-  generatedAt: string;
-  status: 'ready' | 'generating' | 'error';
-  fileUrl?: string;
-  summary: {
-    totalStudents: number;
-    totalTeachers: number;
-    attendanceRate: number;
-    performanceScore: number;
-    disciplineIssues: number;
-    fitnessScore: number;
-  };
-}
+import { Report, Announcement, ExamType } from '../types';
 
 export const ReportsPage = () => {
-  const [reports, setReports] = useState<ReportData[]>([]);
-  const [filteredReports, setFilteredReports] = useState<ReportData[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const [activeTab, setActiveTab] = useState<'overview' | 'daily' | 'weekly' | 'monthly' | 'fee' | 'exam' | 'announcements'>('overview');
+  const [reports, setReports] = useState<Report[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [examTypes, setExamTypes] = useState<ExamType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showGenerateModal, setShowGenerateModal] = useState(false);
-  const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
 
-  // Mock data
-  const mockReports: ReportData[] = [
+  // Mock data for demonstration
+  useEffect(() => {
+    const mockReports: Report[] = [
     {
       id: '1',
-      title: 'Monthly Attendance Report - January 2024',
-      type: 'attendance',
-      dateRange: '2024-01-01 to 2024-01-31',
-      generatedBy: 'Admin User',
-      generatedAt: '2024-01-31T10:30:00Z',
-      status: 'ready',
-      fileUrl: '/reports/attendance-jan-2024.pdf',
-      summary: {
+        type: 'daily',
+        title: 'Daily Attendance Report',
+        description: 'Daily attendance summary for all classes',
+        generatedBy: 'Admin',
+        generatedAt: '2024-01-15T10:00:00Z',
+        data: {
         totalStudents: 150,
-        totalTeachers: 12,
-        attendanceRate: 92.5,
-        performanceScore: 85.2,
-        disciplineIssues: 8,
-        fitnessScore: 78.5
-      }
+          present: 142,
+          absent: 8,
+          percentage: 94.7
+        },
+        filters: {
+          dateRange: {
+            start: '2024-01-15',
+            end: '2024-01-15'
+          }
+        },
+        status: 'completed',
+        filePath: '/reports/daily-attendance-2024-01-15.pdf'
     },
     {
       id: '2',
-      title: 'Student Performance Analysis - Q1 2024',
-      type: 'performance',
-      dateRange: '2024-01-01 to 2024-03-31',
-      generatedBy: 'Admin User',
-      generatedAt: '2024-04-01T14:15:00Z',
-      status: 'ready',
-      fileUrl: '/reports/performance-q1-2024.pdf',
-      summary: {
-        totalStudents: 150,
-        totalTeachers: 12,
-        attendanceRate: 91.8,
-        performanceScore: 87.3,
-        disciplineIssues: 12,
-        fitnessScore: 82.1
-      }
+        type: 'weekly',
+        title: 'Weekly Performance Report',
+        description: 'Weekly performance summary for all students',
+        generatedBy: 'Admin',
+        generatedAt: '2024-01-14T15:30:00Z',
+        data: {
+          averageScore: 85.2,
+          topPerformers: ['Student 1', 'Student 2', 'Student 3'],
+          areasOfImprovement: ['Discipline', 'Fitness']
+        },
+        filters: {
+          dateRange: {
+            start: '2024-01-08',
+            end: '2024-01-14'
+          }
+        },
+        status: 'completed',
+        filePath: '/reports/weekly-performance-2024-01-14.pdf'
     },
     {
       id: '3',
-      title: 'Discipline Report - February 2024',
-      type: 'discipline',
-      dateRange: '2024-02-01 to 2024-02-29',
-      generatedBy: 'Admin User',
-      generatedAt: '2024-02-29T16:45:00Z',
-      status: 'ready',
-      fileUrl: '/reports/discipline-feb-2024.pdf',
-      summary: {
-        totalStudents: 150,
-        totalTeachers: 12,
-        attendanceRate: 93.2,
-        performanceScore: 86.7,
-        disciplineIssues: 5,
-        fitnessScore: 80.3
-      }
-    },
-    {
-      id: '4',
-      title: 'Comprehensive Annual Report 2023',
-      type: 'comprehensive',
-      dateRange: '2023-01-01 to 2023-12-31',
-      generatedBy: 'Admin User',
-      generatedAt: '2024-01-15T09:20:00Z',
-      status: 'ready',
-      fileUrl: '/reports/annual-2023.pdf',
-      summary: {
-        totalStudents: 145,
-        totalTeachers: 11,
-        attendanceRate: 89.5,
-        performanceScore: 83.8,
-        disciplineIssues: 45,
-        fitnessScore: 76.2
-      }
-    }
-  ];
-
-  const reportTypes = [
-    { value: 'attendance', label: 'Attendance', icon: ClockIcon },
-    { value: 'performance', label: 'Performance', icon: StarIcon },
-    { value: 'discipline', label: 'Discipline', icon: ExclamationTriangleIcon },
-    { value: 'fitness', label: 'Fitness', icon: HeartIcon },
-    { value: 'fees', label: 'Fees', icon: ChartBarIcon },
-    { value: 'comprehensive', label: 'Comprehensive', icon: AcademicCapIcon }
-  ];
-
-  // Load reports
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        // Try API first
-        const token = localStorage.getItem('token');
-        if (token && token !== 'mock-token') {
-          const response = await fetch('http://localhost:5000/api/reports', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            const reportsData = data.reports || data.data || [];
-            setReports(reportsData);
-            setFilteredReports(reportsData);
-            setIsLoading(false);
-            return;
+        type: 'monthly',
+        title: 'Monthly Fee Report',
+        description: 'Monthly fee collection and outstanding amounts',
+        generatedBy: 'Admin',
+        generatedAt: '2024-01-01T09:00:00Z',
+        data: {
+          totalFees: 150000,
+          collected: 135000,
+          outstanding: 15000,
+          collectionRate: 90
+        },
+        filters: {
+          dateRange: {
+            start: '2024-01-01',
+            end: '2024-01-31'
           }
-        }
-
-        // Use mock data
-        setReports(mockReports);
-        setFilteredReports(mockReports);
-      } catch (error) {
-        console.error('Error loading reports:', error);
-        setReports(mockReports);
-        setFilteredReports(mockReports);
-      } finally {
-        setIsLoading(false);
+        },
+        status: 'completed',
+        filePath: '/reports/monthly-fee-2024-01.pdf'
       }
-    };
+    ];
 
-    loadReports();
+    const mockAnnouncements: Announcement[] = [
+      {
+        id: '1',
+        title: 'Monthly Exam Schedule',
+        content: 'The monthly exam will be conducted from January 20-25, 2024. Please ensure all students are prepared.',
+        type: 'exam',
+        targetAudience: ['students', 'parents', 'teachers'],
+        priority: 'high',
+        publishedBy: 'Admin',
+        publishedAt: '2024-01-10T10:00:00Z',
+        expiresAt: '2024-01-25T23:59:59Z',
+        isActive: true
+      },
+      {
+        id: '2',
+        title: 'Holiday Notice',
+        content: 'The madrassah will be closed on January 26, 2024 for Republic Day.',
+        type: 'holiday',
+        targetAudience: ['all'],
+        priority: 'medium',
+        publishedBy: 'Admin',
+        publishedAt: '2024-01-15T14:00:00Z',
+        expiresAt: '2024-01-26T23:59:59Z',
+        isActive: true
+      }
+    ];
+
+    const mockExamTypes: ExamType[] = [
+      {
+        id: '1',
+        name: 'Monthly Exam',
+        nameArabic: 'الامتحان الشهري',
+        type: 'monthly',
+        description: 'Monthly assessment for all students',
+        weight: 25,
+        status: 'active'
+      },
+      {
+        id: '2',
+        name: 'Quarterly Exam',
+        nameArabic: 'الامتحان ربع السنوي',
+        type: 'quarterly',
+        description: 'Quarterly assessment for all students',
+        weight: 30,
+        status: 'active'
+      },
+      {
+        id: '3',
+        name: 'Half-Yearly Exam',
+        nameArabic: 'الامتحان نصف السنوي',
+        type: 'half_yearly',
+        description: 'Half-yearly assessment for all students',
+        weight: 35,
+        status: 'active'
+      },
+      {
+        id: '4',
+        name: 'Annual Exam',
+        nameArabic: 'الامتحان السنوي',
+        type: 'annual',
+        description: 'Annual assessment for all students',
+        weight: 40,
+        status: 'active'
+      }
+    ];
+
+        setReports(mockReports);
+    setAnnouncements(mockAnnouncements);
+    setExamTypes(mockExamTypes);
+        setIsLoading(false);
   }, []);
 
-  // Filter reports
-  useEffect(() => {
-    let filtered = reports;
-
-    if (searchTerm) {
-      filtered = filtered.filter(report =>
-        report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        report.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        report.generatedBy.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (selectedType) {
-      filtered = filtered.filter(report => report.type === selectedType);
-    }
-
-    if (selectedStatus) {
-      filtered = filtered.filter(report => report.status === selectedStatus);
-    }
-
-    setFilteredReports(filtered);
-  }, [reports, searchTerm, selectedType, selectedStatus]);
-
-  const getTypeIcon = (type: string) => {
-    const typeConfig = reportTypes.find(t => t.value === type);
-    return typeConfig ? typeConfig.icon : ChartBarIcon;
-  };
-
-  const getTypeLabel = (type: string) => {
-    const typeConfig = reportTypes.find(t => t.value === type);
-    return typeConfig ? typeConfig.label : type;
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      ready: { color: 'bg-green-100 text-green-800', text: 'Ready' },
-      generating: { color: 'bg-yellow-100 text-yellow-800', text: 'Generating' },
-      error: { color: 'bg-red-100 text-red-800', text: 'Error' }
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig];
-
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        {config.text}
-      </span>
-    );
-  };
-
-  const handleGenerateReport = async (reportType: string, dateRange: string) => {
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const newReport: ReportData = {
+  const handleGenerateReport = (type: string) => {
+    const newReport: Report = {
         id: Date.now().toString(),
-        title: `${getTypeLabel(reportType)} Report - ${new Date().toLocaleDateString()}`,
-        type: reportType as any,
-        dateRange: dateRange,
-        generatedBy: 'Current User',
+      type: type as any,
+      title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
+      description: `Generated ${type} report`,
+      generatedBy: 'Admin',
         generatedAt: new Date().toISOString(),
-        status: 'ready',
-        fileUrl: `/reports/${reportType}-${Date.now()}.pdf`,
-        summary: {
-          totalStudents: Math.floor(Math.random() * 50) + 100,
-          totalTeachers: Math.floor(Math.random() * 5) + 8,
-          attendanceRate: Math.random() * 20 + 80,
-          performanceScore: Math.random() * 20 + 75,
-          disciplineIssues: Math.floor(Math.random() * 20),
-          fitnessScore: Math.random() * 20 + 70
-        }
-      };
-      
-      setReports(prev => [newReport, ...prev]);
-      setShowGenerateModal(false);
-      toast.success('Report generated successfully!');
-    } catch (error) {
-      toast.error('Failed to generate report');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDownloadReport = (report: ReportData) => {
-    if (report.status === 'ready') {
-      // Simulate download
-      toast.success('Report download started');
-    } else {
-      toast.error('Report is not ready for download');
-    }
-  };
-
-  const handlePrintReport = (report: ReportData) => {
-    if (report.status === 'ready') {
-      // Simulate print
-      toast.success('Report sent to printer');
-    } else {
-      toast.error('Report is not ready for printing');
-    }
-  };
-
-  const handleShareReport = (report: ReportData) => {
-    if (report.status === 'ready') {
-      // Simulate share
-      toast.success('Report share link copied to clipboard');
-    } else {
-      toast.error('Report is not ready for sharing');
-    }
+      data: {},
+      filters: {},
+      status: 'generating'
+    };
+    setReports([newReport, ...reports]);
+    
+    // Simulate report generation
+    setTimeout(() => {
+      setReports(prev => prev.map(r => 
+        r.id === newReport.id 
+          ? { ...r, status: 'completed', filePath: `/reports/${type}-${Date.now()}.pdf` }
+          : r
+      ));
+    }, 2000);
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-grass-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="heading-lg">Reports & Analytics</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Generate, view, and manage comprehensive reports and analytics
-          </p>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Reports & Announcements</h1>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          Generate and manage reports and announcements
         </div>
-        <div className="mt-4 sm:mt-0">
+        </div>
+
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="-mb-px flex space-x-8">
+          {[
+            { id: 'overview', name: 'Overview', icon: '📊' },
+            { id: 'daily', name: 'Daily Reports', icon: '📅' },
+            { id: 'weekly', name: 'Weekly Reports', icon: '📈' },
+            { id: 'monthly', name: 'Monthly Reports', icon: '📋' },
+            { id: 'fee', name: 'Fee Reports', icon: '💰' },
+            { id: 'exam', name: 'Exam Reports', icon: '📝' },
+            { id: 'announcements', name: 'Announcements', icon: '📢' }
+          ].map((tab) => (
           <button
-            onClick={() => setShowGenerateModal(true)}
-            className="btn btn-primary"
-          >
-            <ChartBarIcon className="h-4 w-4 mr-2" />
-            Generate Report
-          </button>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <ChartBarIcon className="h-8 w-8 text-grass-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Reports</p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">{reports.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <ClockIcon className="h-8 w-8 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Ready Reports</p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {reports.filter(r => r.status === 'ready').length}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <StarIcon className="h-8 w-8 text-yellow-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Performance</p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {Math.round(reports.reduce((acc, r) => acc + r.summary.performanceScore, 0) / reports.length)}%
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <UserGroupIcon className="h-8 w-8 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Attendance</p>
-              <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {Math.round(reports.reduce((acc, r) => acc + r.summary.attendanceRate, 0) / reports.length)}%
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-        <div className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search reports..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="input pl-10"
-                />
-              </div>
-            </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="btn btn-outline"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === tab.id
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
             >
-              <FunnelIcon className="h-4 w-4 mr-2" />
-              Filters
+              <span className="mr-2">{tab.icon}</span>
+              {tab.name}
+          </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'overview' && <OverviewTab reports={reports} onGenerateReport={handleGenerateReport} />}
+        {activeTab === 'daily' && <DailyReportsTab reports={reports.filter(r => r.type === 'daily')} onGenerateReport={handleGenerateReport} />}
+        {activeTab === 'weekly' && <WeeklyReportsTab reports={reports.filter(r => r.type === 'weekly')} onGenerateReport={handleGenerateReport} />}
+        {activeTab === 'monthly' && <MonthlyReportsTab reports={reports.filter(r => r.type === 'monthly')} onGenerateReport={handleGenerateReport} />}
+        {activeTab === 'fee' && <FeeReportsTab reports={reports.filter(r => r.type === 'fee')} onGenerateReport={handleGenerateReport} />}
+        {activeTab === 'exam' && <ExamReportsTab examTypes={examTypes} />}
+        {activeTab === 'announcements' && <AnnouncementsTab announcements={announcements} />}
+        </div>
+      </div>
+  );
+};
+
+interface OverviewTabProps {
+  reports: Report[];
+  onGenerateReport: (type: string) => void;
+}
+
+const OverviewTab = ({ reports, onGenerateReport }: OverviewTabProps) => {
+  const recentReports = reports.slice(0, 5);
+  const reportStats = {
+    total: reports.length,
+    completed: reports.filter(r => r.status === 'completed').length,
+    generating: reports.filter(r => r.status === 'generating').length,
+    failed: reports.filter(r => r.status === 'failed').length
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Total Reports</h3>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{reportStats.total}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-green-100 dark:bg-green-900">
+              <span className="text-2xl">✅</span>
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Completed</h3>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{reportStats.completed}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900">
+              <span className="text-2xl">⏳</span>
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Generating</h3>
+              <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{reportStats.generating}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-red-100 dark:bg-red-900">
+              <span className="text-2xl">❌</span>
+            </div>
+            <div className="ml-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Failed</h3>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{reportStats.failed}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { type: 'daily', name: 'Daily Report', icon: '📅', color: 'blue' },
+            { type: 'weekly', name: 'Weekly Report', icon: '📈', color: 'green' },
+            { type: 'monthly', name: 'Monthly Report', icon: '📋', color: 'purple' },
+            { type: 'fee', name: 'Fee Report', icon: '💰', color: 'yellow' }
+          ].map((action) => (
+            <button
+              key={action.type}
+              onClick={() => onGenerateReport(action.type)}
+              className={`p-4 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-${action.color}-500 hover:bg-${action.color}-50 dark:hover:bg-${action.color}-900/20 transition-colors duration-200`}
+            >
+              <div className="text-center">
+                <span className="text-3xl mb-2 block">{action.icon}</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{action.name}</span>
+              </div>
             </button>
+          ))}
+        </div>
           </div>
 
-          {showFilters && (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Recent Reports */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Reports</h3>
+        <div className="space-y-4">
+          {recentReports.map((report) => (
+            <div key={report.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="flex items-center space-x-4">
+                <span className="text-2xl">
+                  {report.type === 'daily' ? '📅' : 
+                   report.type === 'weekly' ? '📈' : 
+                   report.type === 'monthly' ? '📋' : 
+                   report.type === 'fee' ? '💰' : '📊'}
+                </span>
               <div>
-                <label className="label">Report Type</label>
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="input mt-1"
-                >
-                  <option value="">All Types</option>
-                  {reportTypes.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="label">Status</label>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="input mt-1"
-                >
-                  <option value="">All Status</option>
-                  <option value="ready">Ready</option>
-                  <option value="generating">Generating</option>
-                  <option value="error">Error</option>
-                </select>
-              </div>
-              <div className="flex items-end">
-                <button
-                  onClick={() => {
-                    setSelectedType('');
-                    setSelectedStatus('');
-                    setSearchTerm('');
-                  }}
-                  className="btn btn-outline w-full"
-                >
-                  Clear Filters
-                </button>
+                  <h4 className="font-medium text-gray-900 dark:text-white">{report.title}</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Generated by {report.generatedBy} • {new Date(report.generatedAt).toLocaleDateString()}
+                  </p>
               </div>
             </div>
+              <div className="flex items-center space-x-2">
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  report.status === 'completed' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : report.status === 'generating'
+                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}>
+                  {report.status}
+                </span>
+                {report.status === 'completed' && (
+                  <button className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300">
+                    Download
+                  </button>
           )}
         </div>
       </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-      {/* Reports Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredReports.map((report) => {
-          const Icon = getTypeIcon(report.type);
+interface DailyReportsTabProps {
+  reports: Report[];
+  onGenerateReport: (type: string) => void;
+}
+
+const DailyReportsTab = ({ reports, onGenerateReport }: DailyReportsTabProps) => {
           return (
-            <div key={report.id} className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <Icon className="h-8 w-8 text-grass-600 mr-3" />
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Daily Reports</h2>
+        <button
+          onClick={() => onGenerateReport('daily')}
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+        >
+          Generate Daily Report
+        </button>
+      </div>
+
+      <div className="grid gap-6">
+        {reports.map((report) => (
+          <div key={report.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                        {getTypeLabel(report.type)}
-                      </h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{report.title}</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {report.dateRange}
+                  Generated by {report.generatedBy} • {new Date(report.generatedAt).toLocaleDateString()}
                       </p>
                     </div>
-                  </div>
-                  {getStatusBadge(report.status)}
+              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                report.status === 'completed' 
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : report.status === 'generating'
+                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+              }`}>
+                {report.status}
+              </span>
                 </div>
                 
-                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  {report.title}
-                </h4>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Students:</span>
-                    <span className="text-gray-900 dark:text-white">{report.summary.totalStudents}</span>
+            {report.data && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {Object.entries(report.data).map(([key, value]) => (
+                  <div key={key} className="text-center">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Attendance:</span>
-                    <span className="text-gray-900 dark:text-white">{report.summary.attendanceRate.toFixed(1)}%</span>
+                ))}
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Performance:</span>
-                    <span className="text-gray-900 dark:text-white">{report.summary.performanceScore.toFixed(1)}%</span>
+            )}
+                  </div>
+        ))}
                   </div>
                 </div>
-                
-                <div className="flex space-x-2">
+  );
+};
+
+// Similar components for other tabs would go here
+const WeeklyReportsTab = ({ reports, onGenerateReport }: DailyReportsTabProps) => (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Weekly Reports</h2>
                   <button
-                    onClick={() => handleDownloadReport(report)}
-                    className="flex-1 btn btn-outline text-xs"
-                    disabled={report.status !== 'ready'}
+        onClick={() => onGenerateReport('weekly')}
+        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                   >
-                    <DocumentArrowDownIcon className="h-4 w-4 mr-1" />
-                    Download
+        Generate Weekly Report
                   </button>
+    </div>
+    <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+      Weekly reports will be displayed here
+    </div>
+  </div>
+);
+
+const MonthlyReportsTab = ({ reports, onGenerateReport }: DailyReportsTabProps) => (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Monthly Reports</h2>
                   <button
-                    onClick={() => handlePrintReport(report)}
-                    className="flex-1 btn btn-outline text-xs"
-                    disabled={report.status !== 'ready'}
+        onClick={() => onGenerateReport('monthly')}
+        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                   >
-                    <PrinterIcon className="h-4 w-4 mr-1" />
-                    Print
+        Generate Monthly Report
                   </button>
+    </div>
+    <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+      Monthly reports will be displayed here
+    </div>
+  </div>
+);
+
+const FeeReportsTab = ({ reports, onGenerateReport }: DailyReportsTabProps) => (
+  <div className="space-y-6">
+    <div className="flex justify-between items-center">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Fee Reports</h2>
                   <button
-                    onClick={() => handleShareReport(report)}
-                    className="flex-1 btn btn-outline text-xs"
-                    disabled={report.status !== 'ready'}
+        onClick={() => onGenerateReport('fee')}
+        className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                   >
-                    <ShareIcon className="h-4 w-4 mr-1" />
-                    Share
+        Generate Fee Report
                   </button>
                 </div>
-                
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>Generated by: {report.generatedBy}</span>
-                    <span>{new Date(report.generatedAt).toLocaleDateString()}</span>
+    <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+      Fee reports will be displayed here
+    </div>
+  </div>
+);
+
+interface ExamReportsTabProps {
+  examTypes: ExamType[];
+}
+
+const ExamReportsTab = ({ examTypes }: ExamReportsTabProps) => {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Exam Types</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {examTypes.map((examType) => (
+          <div key={examType.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {examType.name}
+              </h3>
+              <p className="text-2xl font-bold text-primary-600 dark:text-primary-400 mb-2">
+                {examType.nameArabic}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                {examType.description}
+              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Weight: {examType.weight}%
+                </span>
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  examType.status === 'active' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}>
+                  {examType.status}
+                </span>
                   </div>
                 </div>
+          </div>
+        ))}
               </div>
             </div>
           );
-        })}
-      </div>
+};
 
-      {filteredReports.length === 0 && (
-        <div className="text-center py-12">
-          <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No reports found</h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {searchTerm || selectedType || selectedStatus
-              ? 'Try adjusting your search criteria.'
-              : 'Get started by generating a new report.'
-            }
-          </p>
-        </div>
-      )}
+interface AnnouncementsTabProps {
+  announcements: Announcement[];
+}
 
-      {/* Generate Report Modal */}
-      {showGenerateModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="heading-md">Generate New Report</h3>
-                <button
-                  onClick={() => setShowGenerateModal(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-200"
-                >
-                  <XMarkIcon className="h-6 w-6" />
+const AnnouncementsTab = ({ announcements }: AnnouncementsTabProps) => {
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Announcements</h2>
+        <button className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+          Create Announcement
                 </button>
               </div>
               
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target as HTMLFormElement);
-                const reportType = formData.get('reportType') as string;
-                const dateRange = formData.get('dateRange') as string;
-                handleGenerateReport(reportType, dateRange);
-              }} className="space-y-4">
+      <div className="space-y-4">
+        {announcements.map((announcement) => (
+          <div key={announcement.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <div className="flex justify-between items-start mb-4">
                 <div>
-                  <label className="label">Report Type</label>
-                  <select name="reportType" className="input mt-1" required>
-                    <option value="">Select Report Type</option>
-                    {reportTypes.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
-                    ))}
-                  </select>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {announcement.title}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Published by {announcement.publishedBy} • {new Date(announcement.publishedAt).toLocaleDateString()}
+                </p>
                 </div>
-                <div>
-                  <label className="label">Date Range</label>
-                  <select name="dateRange" className="input mt-1" required>
-                    <option value="">Select Date Range</option>
-                    <option value="last-week">Last Week</option>
-                    <option value="last-month">Last Month</option>
-                    <option value="last-quarter">Last Quarter</option>
-                    <option value="last-year">Last Year</option>
-                    <option value="custom">Custom Range</option>
-                  </select>
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowGenerateModal(false)}
-                    className="btn btn-outline"
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="btn btn-primary" disabled={isLoading}>
-                    {isLoading ? 'Generating...' : 'Generate Report'}
-                  </button>
-                </div>
-              </form>
+              <div className="flex items-center space-x-2">
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  announcement.priority === 'urgent' 
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    : announcement.priority === 'high'
+                    ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                }`}>
+                  {announcement.priority}
+                </span>
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  announcement.isActive 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                }`}>
+                  {announcement.isActive ? 'Active' : 'Inactive'}
+                </span>
             </div>
           </div>
+
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{announcement.content}</p>
+
+            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-4">
+                <span>Type: {announcement.type}</span>
+                <span>Audience: {announcement.targetAudience.join(', ')}</span>
         </div>
+              {announcement.expiresAt && (
+                <span>Expires: {new Date(announcement.expiresAt).toLocaleDateString()}</span>
       )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

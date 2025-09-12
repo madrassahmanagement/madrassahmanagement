@@ -4,7 +4,7 @@ export interface User {
   lastName: string;
   email: string;
   phone: string;
-  role: 'admin' | 'teacher' | 'student' | 'parent' | 'staff';
+  role: 'admin' | 'teacher' | 'student' | 'parent' | 'staff' | 'nazim' | 'mudir' | 'raises_jamia' | 'shaikul_hadees' | 'senior_mentor' | 'management';
   profilePicture?: string;
   language: 'en' | 'ur' | 'ar';
   lastLogin?: string;
@@ -648,5 +648,633 @@ export interface DashboardStats {
     maxStudents: number;
     subjectsCount: number;
     sections: number;
+  }>;
+}
+
+// New interfaces for Deen Soft requirements
+
+export interface Section {
+  id: string;
+  name: string;
+  class: string;
+  maxStudents: number;
+  currentStudents: number;
+  assignedTeacher: string;
+  description?: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DailyLearning {
+  id: string;
+  student: string;
+  class: string;
+  section: string;
+  date: string;
+  muatlia: {
+    completed: boolean;
+    description: string;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    notes?: string;
+  };
+  sabaq: {
+    surah: {
+      name: string;
+      number: number;
+    };
+    fromAyah: number;
+    toAyah: number;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    notes?: string;
+  };
+  sabqi: {
+    surah: {
+      name: string;
+      number: number;
+    };
+    fromAyah: number;
+    toAyah: number;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    mistakes: Array<{
+      type: string;
+      description: string;
+    }>;
+    notes?: string;
+  };
+  manzil: {
+    surah: {
+      name: string;
+      number: number;
+    };
+    fromAyah: number;
+    toAyah: number;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    notes?: string;
+  };
+  markedBy: string;
+}
+
+export interface StudentScoring {
+  id: string;
+  student: string;
+  class: string;
+  section: string;
+  date: string;
+  discipline: {
+    points: number; // 0-5
+    description: string;
+    category: 'behavior' | 'respect' | 'punctuality' | 'cooperation' | 'other';
+  };
+  uniform: {
+    points: number; // 0-5
+    description: string;
+    issues: string[];
+  };
+  fitness: {
+    points: number; // 0-5
+    description: string;
+    activities: string[];
+  };
+  adab: {
+    points: number; // 0-5
+    description: string;
+    aspects: string[];
+  };
+  dailyLearning: {
+    points: number; // 0-5
+    description: string;
+    areas: string[];
+  };
+  salah: {
+    points: number; // 0-5
+    description: string;
+    prayers: {
+      fajr: boolean;
+      dhuhr: boolean;
+      asr: boolean;
+      maghrib: boolean;
+      isha: boolean;
+    };
+  };
+  totalPoints: number; // 0-30
+  markedBy: string;
+}
+
+export interface ExamType {
+  id: string;
+  name: string;
+  nameArabic: string;
+  type: 'monthly' | 'quarterly' | 'half_yearly' | 'annual';
+  description?: string;
+  weight: number;
+  status: 'active' | 'inactive';
+}
+
+export interface ParentSuggestion {
+  id: string;
+  parent: string;
+  student: string;
+  suggestion: string;
+  category: 'academic' | 'behavior' | 'health' | 'general' | 'other';
+  status: 'pending' | 'reviewed' | 'implemented' | 'rejected';
+  response?: string;
+  respondedBy?: string;
+  respondedAt?: string;
+  createdAt: string;
+}
+
+export interface ParentApplication {
+  id: string;
+  parent: string;
+  student: string;
+  type: 'leave' | 'transfer' | 'fee_exemption' | 'other';
+  subject: string;
+  description: string;
+  supportingDocuments?: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy?: string;
+  reviewedAt?: string;
+  response?: string;
+  createdAt: string;
+}
+
+export interface NamazTracking {
+  id: string;
+  student: string;
+  date: string;
+  fajr: {
+    performed: boolean;
+    location: 'madrassah' | 'home' | 'other';
+    time?: string;
+    notes?: string;
+  };
+  isha: {
+    performed: boolean;
+    location: 'madrassah' | 'home' | 'other';
+    time?: string;
+    notes?: string;
+  };
+  familyInteraction: {
+    handKiss: boolean;
+    behaviorRating: number; // 1-5 stars
+    description?: string;
+  };
+  newLearning: {
+    hadith: {
+      learned: boolean;
+      text?: string;
+      reference?: string;
+    };
+    sunnah: {
+      learned: boolean;
+      description?: string;
+    };
+    other: {
+      learned: boolean;
+      description?: string;
+    };
+  };
+  weeklyReflection: {
+    question: string;
+    answer?: string; // 200 words max
+    answered: boolean;
+  };
+  markedBy: string;
+}
+
+export interface Report {
+  id: string;
+  type: 'daily' | 'weekly' | 'monthly' | 'fee' | 'exam' | 'custom';
+  title: string;
+  description?: string;
+  generatedBy: string;
+  generatedAt: string;
+  data: any;
+  filters: {
+    dateRange?: {
+      start: string;
+      end: string;
+    };
+    classes?: string[];
+    sections?: string[];
+    students?: string[];
+  };
+  status: 'generating' | 'completed' | 'failed';
+  filePath?: string;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  type: 'general' | 'urgent' | 'exam' | 'holiday' | 'fee' | 'other';
+  targetAudience: ('all' | 'students' | 'parents' | 'teachers' | 'staff')[];
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  publishedBy: string;
+  publishedAt: string;
+  expiresAt?: string;
+  isActive: boolean;
+  attachments?: string[];
+}
+
+// Enhanced interfaces for Deen Soft comprehensive system
+
+export interface Exam {
+  id: string;
+  name: string;
+  nameArabic: string; // Arabic translation
+  type: 'monthly' | 'quarterly' | 'half_yearly' | 'annual';
+  classId: string;
+  subject: string;
+  examDate: string;
+  totalMarks: number;
+  passingMarks: number;
+  duration: number; // in minutes
+  instructions?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExamResult {
+  id: string;
+  examId: string;
+  studentId: string;
+  obtainedMarks: number;
+  percentage: number;
+  grade: string;
+  remarks?: string;
+  position?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Fee {
+  id: string;
+  studentId: string;
+  classId: string;
+  feeType: 'monthly' | 'quarterly' | 'annual' | 'admission' | 'exam' | 'other';
+  amount: number;
+  dueDate: string;
+  paidAmount: number;
+  paidDate?: string;
+  status: 'pending' | 'paid' | 'overdue' | 'waived';
+  paymentMethod?: 'cash' | 'bank_transfer' | 'mobile_banking' | 'other';
+  transactionId?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeacherAttendance {
+  id: string;
+  teacherId: string;
+  date: string;
+  comingTime?: string;
+  leavingTime?: string;
+  isPresent: boolean;
+  leaveReason?: string;
+  leaveType?: 'sick' | 'personal' | 'emergency' | 'other';
+  approvedBy?: string;
+  approvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeacherPerformance {
+  id: string;
+  teacherId: string;
+  evaluatorId: string;
+  date: string;
+  disciplineScore: number; // 0-5
+  attitudeScore: number; // 0-5
+  focusScore: number; // 0-5
+  description: string;
+  recommendations?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'attendance' | 'namaz' | 'discipline' | 'performance' | 'fee' | 'exam' | 'general';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  isRead: boolean;
+  readAt?: string;
+  actionUrl?: string;
+  createdAt: string;
+}
+
+export interface InkyResult {
+  id: string;
+  studentId: string;
+  examId: string;
+  subject: string;
+  inkyMarks: number;
+  totalMarks: number;
+  percentage: number;
+  grade: string;
+  remarks?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudentProgress {
+  id: string;
+  studentId: string;
+  classId: string;
+  sectionId: string;
+  date: string;
+  muatlia: {
+    completed: boolean;
+    description: string;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    notes?: string;
+  };
+  sabaq: {
+    surah: {
+      name: string;
+      number: number;
+    };
+    fromAyah: number;
+    toAyah: number;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    notes?: string;
+  };
+  sabqi: {
+    surah: {
+      name: string;
+      number: number;
+    };
+    fromAyah: number;
+    toAyah: number;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    mistakes: Array<{
+      type: string;
+      description: string;
+    }>;
+    notes?: string;
+  };
+  manzil: {
+    surah: {
+      name: string;
+      number: number;
+    };
+    fromAyah: number;
+    toAyah: number;
+    performance: 'excellent' | 'good' | 'average' | 'needs_improvement';
+    notes?: string;
+  };
+  markedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StudentScore {
+  id: string;
+  studentId: string;
+  classId: string;
+  sectionId: string;
+  date: string;
+  discipline: {
+    points: number; // 0-5
+    description: string;
+    category: 'behavior' | 'respect' | 'punctuality' | 'cooperation' | 'other';
+  };
+  uniform: {
+    points: number; // 0-5
+    description: string;
+    issues: string[];
+  };
+  fitness: {
+    points: number; // 0-5
+    description: string;
+    activities: string[];
+  };
+  adab: {
+    points: number; // 0-5
+    description: string;
+    aspects: string[];
+  };
+  dailyLearning: {
+    points: number; // 0-5
+    description: string;
+    areas: string[];
+  };
+  salah: {
+    points: number; // 0-5
+    description: string;
+    prayers: {
+      fajr: boolean;
+      dhuhr: boolean;
+      asr: boolean;
+      maghrib: boolean;
+      isha: boolean;
+    };
+  };
+  totalPoints: number; // 0-30
+  markedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ParentSuggestion {
+  id: string;
+  parentId: string;
+  studentId: string;
+  suggestion: string; // Max 200 words
+  category: 'academic' | 'behavior' | 'health' | 'general' | 'other';
+  status: 'pending' | 'reviewed' | 'implemented' | 'rejected';
+  response?: string;
+  respondedBy?: string;
+  respondedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ParentApplication {
+  id: string;
+  parentId: string;
+  studentId: string;
+  type: 'leave' | 'transfer' | 'fee_exemption' | 'other';
+  subject: string;
+  description: string;
+  supportingDocuments?: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy?: string;
+  reviewedAt?: string;
+  response?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NamazTracking {
+  id: string;
+  studentId: string;
+  date: string;
+  fajr: {
+    performed: boolean;
+    location: 'madrassah' | 'home' | 'other';
+    time?: string;
+    notes?: string;
+  };
+  isha: {
+    performed: boolean;
+    location: 'madrassah' | 'home' | 'other';
+    time?: string;
+    notes?: string;
+  };
+  newLearning: {
+    hadith: {
+      learned: boolean;
+      text?: string;
+      reference?: string;
+    };
+    sunnah: {
+      learned: boolean;
+      description?: string;
+    };
+    other: {
+      learned: boolean;
+      description?: string;
+    };
+  };
+  familyInteraction: {
+    handKiss: boolean;
+    behaviorRating: number; // 1-5 stars
+    description?: string;
+  };
+  weeklyReflection: {
+    question: string;
+    answer?: string; // 200 words max
+    answered: boolean;
+  };
+  markedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Report {
+  id: string;
+  type: 'daily' | 'weekly' | 'monthly' | 'fee' | 'exam' | 'custom';
+  title: string;
+  description?: string;
+  generatedBy: string;
+  generatedAt: string;
+  data: any;
+  filters: {
+    dateRange?: {
+      start: string;
+      end: string;
+    };
+    classes?: string[];
+    sections?: string[];
+    students?: string[];
+  };
+  status: 'generating' | 'completed' | 'failed';
+  filePath?: string;
+}
+
+export interface SystemSettings {
+  id: string;
+  key: string;
+  value: any;
+  description?: string;
+  category: 'general' | 'academic' | 'financial' | 'notification' | 'security';
+  isActive: boolean;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  userId: string;
+  action: string;
+  resource: string;
+  resourceId: string;
+  oldValues?: any;
+  newValues?: any;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+}
+
+// Enhanced Dashboard Stats
+export interface EnhancedDashboardStats {
+  overview: {
+    totalStudents: number;
+    totalTeachers: number;
+    totalClasses: number;
+    totalSections: number;
+    totalParents: number;
+    totalStaff: number;
+    recentAdmissions: number;
+    activeExams: number;
+    pendingFees: number;
+  };
+  performance: {
+    attendance: {
+      percentage: number;
+      totalRecords: number;
+      present: number;
+      absent: number;
+      late: number;
+    };
+    namaz: {
+      percentage: number;
+      totalPrayers: number;
+      performedPrayers: number;
+      missedPrayers: number;
+      fajrPercentage: number;
+      ishaPercentage: number;
+    };
+    islamicStudies: {
+      averageScore: number;
+      totalRecords: number;
+      muatliaCompletion: number;
+      sabaqProgress: number;
+      sabqiProgress: number;
+      manzilProgress: number;
+    };
+    discipline: {
+      concerningStudents: number;
+      totalRecords: number;
+      averageScore: number;
+    };
+    scoring: {
+      averageTotalScore: number;
+      excellentStudents: number; // 25-30 points
+      goodStudents: number; // 20-24 points
+      averageStudents: number; // 15-19 points
+      needsImprovement: number; // 0-14 points
+    };
+  };
+  financial: {
+    totalFees: number;
+    collectedFees: number;
+    pendingFees: number;
+    overdueFees: number;
+    monthlyRevenue: number;
+  };
+  teacher: {
+    presentToday: number;
+    absentToday: number;
+    averagePerformance: number;
+    totalTeachers: number;
+  };
+  classes: Array<{
+    id: string;
+    name: string;
+    level: string;
+    totalStudents: number;
+    maxStudents: number;
+    subjectsCount: number;
+    sections: number;
+    averageAttendance: number;
+    averagePerformance: number;
   }>;
 }

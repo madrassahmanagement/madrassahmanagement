@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { StudentDashboardPage } from './StudentDashboardPage';
+import { TeacherDashboardPage } from './TeacherDashboardPage';
+import { ParentDashboardPage } from './ParentDashboardPage';
+import { NazimDashboardPage } from './NazimDashboardPage';
+import { ManagementDashboardPage } from './ManagementDashboardPage';
 import toast from 'react-hot-toast';
 import { studentsAPI } from '../services/api';
 import { 
@@ -20,6 +26,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export const DashboardPage = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -143,6 +150,27 @@ export const DashboardPage = () => {
         return <ClockIcon className="h-3 w-3 sm:h-5 sm:w-5 text-gray-500" />;
     }
   };
+
+  // Show role-specific dashboards
+  if (user?.role === 'student') {
+    return <StudentDashboardPage />;
+  }
+
+  if (user?.role === 'teacher') {
+    return <TeacherDashboardPage />;
+  }
+
+  if (user?.role === 'parent') {
+    return <ParentDashboardPage />;
+  }
+
+  if (user?.role === 'nazim') {
+    return <NazimDashboardPage />;
+  }
+
+  if (['management', 'admin', 'mudir', 'raises_jamia', 'shaikul_hadees', 'senior_mentor'].includes(user?.role || '')) {
+    return <ManagementDashboardPage />;
+  }
 
   if (isLoading) {
     return (
