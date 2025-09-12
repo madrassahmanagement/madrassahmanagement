@@ -20,7 +20,7 @@ export const useAuth = () => {
         email: 'admin@madrassah.com',
         phone: '+1234567890',
         role: role,
-        language: 'en',
+        language: 'en' as const,
         isActive: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -48,7 +48,7 @@ export const useAuth = () => {
       email: email,
       phone: '+1234567890',
       role: role as any || 'admin',
-      language: 'en',
+      language: 'en' as const,
       isActive: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -61,6 +61,9 @@ export const useAuth = () => {
     console.log('Login: Setting user state:', mockUser);
     setUser(mockUser);
     console.log('Login: User state set successfully');
+    
+    // Force a re-render by using a small delay
+    await new Promise(resolve => setTimeout(resolve, 10));
     
     return { success: true };
   }, []);

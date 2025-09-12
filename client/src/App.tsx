@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from './hooks/useAuth'
 import { LoginPage } from './pages/LoginPage'
 import { StudentPortal } from './components/StudentPortal'
@@ -11,10 +12,20 @@ import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
   const { user, isLoading } = useAuth()
+  const [forceRender, setForceRender] = useState(0)
 
   console.log('App render - user:', user, 'isLoading:', isLoading);
   console.log('User role:', user?.role);
   console.log('User exists:', !!user);
+
+  // Force re-render when user state changes
+  useEffect(() => {
+    console.log('App useEffect - user changed:', user);
+    setForceRender(prev => prev + 1);
+  }, [user]);
+
+  // Debug: Log when App component re-renders
+  console.log('App component re-render, forceRender:', forceRender);
 
   if (isLoading) {
     return (
