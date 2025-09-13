@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { ThemeToggle } from '../components/ThemeToggle';
 import toast from 'react-hot-toast';
 
-type UserRole = 'student' | 'teacher' | 'nazim' | 'parent' | 'management';
+type UserRole = 'teacher' | 'nazim' | 'parent' | 'management';
 
 export const LoginPage = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -40,13 +40,6 @@ export const LoginPage = () => {
   };
 
   const roleOptions = [
-    {
-      role: 'student' as UserRole,
-      title: 'Student',
-      description: 'Access your learning progress, assignments, and grades',
-      icon: '🎓',
-      color: 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900 dark:hover:bg-blue-800 dark:border-blue-700 dark:text-blue-200'
-    },
     {
       role: 'teacher' as UserRole,
       title: 'Teacher',
@@ -88,11 +81,16 @@ export const LoginPage = () => {
       
       <div className="max-w-4xl w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2
+            className="mt-6 text-center text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(34,197,94,0.25)]"
+          >
             Saut Ul Quran Education House
           </h2>
-          <p className="mt-1 text-center text-lg text-gray-600 dark:text-gray-400">
-            DeenSoft by Power Project
+          <p
+            className="mt-1 text-center text-lg text-gray-700 dark:text-gray-200 font-semibold"
+            style={{ textShadow: '0 0 8px rgba(34,197,94,0.35)' }}
+          >
+            DeenSoft by POWER Project
           </p>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Click on your role to sign in directly

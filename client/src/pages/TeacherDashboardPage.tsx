@@ -64,7 +64,7 @@ export const TeacherDashboardPage = () => {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">
-          Good morning, {user?.firstName}! 👨‍🏫
+          Assalam-u-Alaikum, {user?.firstName}! 👨‍🏫
         </h1>
         <p className="text-green-100">
           Here's your teaching dashboard and today's tasks

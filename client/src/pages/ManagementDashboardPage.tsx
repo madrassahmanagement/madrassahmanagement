@@ -75,7 +75,7 @@ export const ManagementDashboardPage = () => {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-red-500 to-pink-600 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">
-          Welcome, {user?.firstName}! ⚙️
+          Assalam-u-Alaikum, {user?.firstName}! ⚙️
         </h1>
         <p className="text-red-100">
           {getRoleDisplayName()} Dashboard - Complete system oversight and control

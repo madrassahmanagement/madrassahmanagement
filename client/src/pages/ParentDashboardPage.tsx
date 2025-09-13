@@ -78,7 +78,7 @@ export const ParentDashboardPage = () => {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">
-          Welcome, {user?.firstName}! 👨‍👩‍👧‍👦
+          Assalam-u-Alaikum, {user?.firstName}! 👨‍👩‍👧‍👦
         </h1>
         <p className="text-purple-100">
           Monitor your children's progress and stay connected with their education

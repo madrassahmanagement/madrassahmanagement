@@ -168,7 +168,7 @@ export const ParentPortalPage = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Parent Portal</h1>
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          Welcome, Parent! Access your child's information and communicate with the madrassah.
+          Assalam-u-Alaikum. Access your child's information and communicate with the madrassah.
         </div>
       </div>
 

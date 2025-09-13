@@ -35,16 +35,6 @@ export const RoleBasedNavigation = () => {
     if (!user) return [];
 
     switch (user.role) {
-      case 'student':
-        return [
-          { name: 'Dashboard', href: '/', icon: HomeIcon },
-          { name: 'My Progress', href: '/student-progress', icon: ChartBarIcon },
-          { name: 'Assignments', href: '/assignments', icon: BookOpenIcon },
-          { name: 'Namaz Tracking', href: '/namaz', icon: BookOpenIcon },
-          { name: 'My Scores', href: '/my-scores', icon: StarIcon },
-          { name: 'Profile', href: '/profile', icon: UserCircleIcon },
-        ];
-
       case 'teacher':
         return [
           { name: 'Dashboard', href: '/', icon: HomeIcon },

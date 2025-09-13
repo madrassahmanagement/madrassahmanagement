@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from './hooks/useAuth'
 import { LoginPage } from './pages/LoginPage'
-import { StudentPortal } from './components/StudentPortal'
 import { TeacherPortal } from './components/TeacherPortal'
 import { ParentPortal } from './components/ParentPortal'
 import { NazimPortal } from './components/NazimPortal'
@@ -53,8 +52,6 @@ function App() {
     if (!user) return null;
 
     switch (user.role) {
-      case 'student':
-        return <StudentPortal />;
       case 'teacher':
         return <TeacherPortal />;
       case 'parent':

@@ -68,7 +68,7 @@ export const NazimDashboardPage = () => {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">
-          Good day, {user?.firstName}! 📋
+          Assalam-u-Alaikum, {user?.firstName}! 📋
         </h1>
         <p className="text-yellow-100">
           Here's your daily operations overview and management tasks
