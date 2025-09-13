@@ -89,10 +89,10 @@ export const LoginPage = () => {
       <div className="max-w-4xl w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Deen Soft
+            Saut Ul Quran Education House
           </h2>
           <p className="mt-1 text-center text-lg text-gray-600 dark:text-gray-400">
-            Madrassah Management System
+            DeenSoft by Power Project
           </p>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Click on your role to sign in directly
