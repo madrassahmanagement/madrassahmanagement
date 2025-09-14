@@ -22,19 +22,19 @@ import { ReportsPage } from '../pages/ReportsPage';
 import { AdminPage } from '../pages/AdminPage';
 import { RoleManagementPage } from '../pages/RoleManagementPage';
 import { SettingsPage } from '../pages/SettingsPage';
-import { ManagementNavigation } from './ManagementNavigation';
+import { RaisJamiaNavigation } from './RaisJamiaNavigation';
 
-export const ManagementPortal = () => {
+export const RaisJamiaPortal = () => {
   const { user } = useAuth();
 
-  if (!user || !['management', 'admin', 'mudir', 'shaikul_hadees', 'senior_mentor'].includes(user.role)) {
+  if (!user || user.role !== 'raises_jamia') {
     return <Navigate to="/login" replace />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col lg:flex-row transition-colors duration-200">
-      {/* Management Navigation */}
-      <ManagementNavigation />
+      {/* Rais e Jamia Navigation */}
+      <RaisJamiaNavigation />
       
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -74,3 +74,5 @@ export const ManagementPortal = () => {
     </div>
   );
 };
+
+

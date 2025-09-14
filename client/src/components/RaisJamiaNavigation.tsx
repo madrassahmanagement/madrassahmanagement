@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ThemeToggle } from './ThemeToggle';
-import { 
-  HomeIcon, 
+import {
+  HomeIcon,
   UsersIcon,
+  UserGroupIcon,
   BookOpenIcon,
   StarIcon,
   ClipboardDocumentCheckIcon,
@@ -12,13 +13,14 @@ import {
   ExclamationTriangleIcon,
   HeartIcon,
   ChartBarIcon,
-  UserCircleIcon,
+  CogIcon,
   Bars3Icon,
   XMarkIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
-export const TeacherNavigation = () => {
+export const RaisJamiaNavigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -31,15 +33,25 @@ export const TeacherNavigation = () => {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
     { name: 'Students', href: '/students', icon: UsersIcon },
+    { name: 'Teachers', href: '/teachers', icon: UserGroupIcon },
+    { name: 'Teacher Tracking', href: '/teacher-tracking', icon: UserGroupIcon },
+    { name: 'Exam Management', href: '/exam-management', icon: AcademicCapIcon },
+    { name: 'Student Progress', href: '/student-progress-tracking', icon: BookOpenIcon },
+    { name: 'Student Scoring', href: '/student-scoring-system', icon: StarIcon },
+    { name: 'Enhanced Namaz', href: '/enhanced-namaz-tracking', icon: BookOpenIcon },
+    { name: 'Fee Management', href: '/fee-management', icon: CurrencyDollarIcon },
+    { name: 'Sections', href: '/sections', icon: UserGroupIcon },
     { name: 'Daily Learning', href: '/daily-learning', icon: BookOpenIcon },
-    { name: 'Uniform', href: '/student-scoring', icon: StarIcon },
+    { name: 'Student Scoring (Old)', href: '/student-scoring', icon: StarIcon },
     { name: 'Attendance', href: '/attendance', icon: ClipboardDocumentCheckIcon },
     { name: 'Namaz Tracking', href: '/namaz', icon: BookOpenIcon },
     { name: 'Islamic Studies', href: '/islamic-studies', icon: AcademicCapIcon },
     { name: 'Discipline', href: '/discipline', icon: ExclamationTriangleIcon },
     { name: 'Fitness', href: '/fitness', icon: HeartIcon },
+    { name: 'Parent Portal', href: '/parent-portal', icon: UsersIcon },
     { name: 'Reports', href: '/reports', icon: ChartBarIcon },
-    { name: 'Profile', href: '/settings', icon: UserCircleIcon },
+    { name: 'Admin Panel', href: '/admin', icon: CogIcon },
+    { name: 'Role Management', href: '/role-management', icon: UserGroupIcon },
   ];
 
   const isActive = (href: string) => {
@@ -48,6 +60,8 @@ export const TeacherNavigation = () => {
     }
     return location.pathname.startsWith(href);
   };
+
+  const getRoleDisplayName = () => 'Rais e Jamia';
 
   return (
     <>
@@ -75,7 +89,7 @@ export const TeacherNavigation = () => {
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Teacher Portal
+                  Rais e Jamia
                 </h1>
                 <div className="flex items-center space-x-2">
                   <ThemeToggle />
@@ -125,7 +139,7 @@ export const TeacherNavigation = () => {
                       {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Teacher
+                      {getRoleDisplayName()}
                     </p>
                   </div>
                 </div>
@@ -148,7 +162,7 @@ export const TeacherNavigation = () => {
           <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-colors duration-200">
             <div className="flex items-center flex-shrink-0 px-4">
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Teacher Portal
+                Rais e Jamia
               </h1>
             </div>
             <div className="mt-5 flex-grow flex flex-col">
@@ -188,7 +202,7 @@ export const TeacherNavigation = () => {
                     {user?.firstName} {user?.lastName}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Teacher
+                    {getRoleDisplayName()}
                   </p>
                 </div>
               </div>
@@ -206,3 +220,5 @@ export const TeacherNavigation = () => {
     </>
   );
 };
+
+

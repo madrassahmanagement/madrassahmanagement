@@ -13,6 +13,7 @@ import {
   ExclamationTriangleIcon,
   HeartIcon,
   ChartBarIcon,
+  CurrencyDollarIcon,
   Bars3Icon,
   XMarkIcon,
   ArrowRightOnRectangleIcon
@@ -34,6 +35,7 @@ export const NazimNavigation = () => {
     { name: 'Teachers', href: '/teachers', icon: UserGroupIcon },
     { name: 'Teacher Tracking', href: '/teacher-tracking', icon: UserGroupIcon },
     { name: 'Sections', href: '/sections', icon: UserGroupIcon },
+    { name: 'Fee Management', href: '/fee-management', icon: CurrencyDollarIcon },
     { name: 'Daily Learning', href: '/daily-learning', icon: BookOpenIcon },
     { name: 'Student Scoring', href: '/student-scoring', icon: StarIcon },
     { name: 'Attendance', href: '/attendance', icon: ClipboardDocumentCheckIcon },

@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { ThemeToggle } from '../components/ThemeToggle';
 import toast from 'react-hot-toast';
 
-type UserRole = 'teacher' | 'nazim' | 'parent' | 'management';
+type UserRole = 'teacher' | 'nazim' | 'parent' | 'management' | 'raises_jamia';
 
 export const LoginPage = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -41,16 +41,23 @@ export const LoginPage = () => {
 
   const roleOptions = [
     {
+      role: 'raises_jamia' as UserRole,
+      title: 'Rais e Jamia',
+      description: 'All authorities\n• Fees: all options\n• Add/Delete Teacher\n• Add/Delete Employee\n• Add/Delete Students\n• All payments & workflows\n• Restrict permissions\n• Access/change any settings',
+      icon: '🏛️',
+      color: 'bg-teal-50 hover:bg-teal-100 border-teal-200 text-teal-800 dark:bg-teal-900 dark:hover:bg-teal-800 dark:border-teal-700 dark:text-teal-200'
+    },
+    {
       role: 'teacher' as UserRole,
       title: 'Teacher',
-      description: 'Manage your classes, track students, and mark attendance',
+      description: 'Students attendance • Behaviour • Uniform • Discipline\nNamaz • Islamic Studies • Daily Learning • Fitness',
       icon: '👨‍🏫',
       color: 'bg-green-50 hover:bg-green-100 border-green-200 text-green-800 dark:bg-green-900 dark:hover:bg-green-800 dark:border-green-700 dark:text-green-200'
     },
     {
       role: 'nazim' as UserRole,
       title: 'Nazim',
-      description: 'Oversee daily operations and student management',
+      description: 'Add students, approve delete\nCollect fees\nDaily expense details\nTeachers attendance\nEmployees attendance (sweeper/gardener/guard)\nJaiza • Sabqi • Manzil oversight\nTeachers behaviour as needed\nInstant notifications to teachers & parents',
       icon: '📋',
       color: 'bg-yellow-50 hover:bg-yellow-100 border-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:hover:bg-yellow-800 dark:border-yellow-700 dark:text-yellow-200'
     },
@@ -64,7 +71,7 @@ export const LoginPage = () => {
     {
       role: 'management' as UserRole,
       title: 'Management',
-      description: 'Full system access for administration and oversight',
+      description: 'Administration & oversight\nRole management, reports\nFee management, settings',
       icon: '⚙️',
       color: 'bg-red-50 hover:bg-red-100 border-red-200 text-red-800 dark:bg-red-900 dark:hover:bg-red-800 dark:border-red-700 dark:text-red-200'
     }
@@ -82,12 +89,12 @@ export const LoginPage = () => {
       <div className="max-w-4xl w-full space-y-8">
         <div>
           <h2
-            className="mt-6 text-center text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-primary-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(34,197,94,0.25)]"
+            className="mt-6 text-center text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight px-3 bg-gradient-to-r from-primary-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(34,197,94,0.25)] break-words"
           >
             Saut Ul Quran Education House
           </h2>
           <p
-            className="mt-1 text-center text-lg text-gray-700 dark:text-gray-200 font-semibold"
+            className="mt-1 text-center text-base sm:text-lg text-gray-700 dark:text-gray-200 font-semibold px-4 leading-snug"
             style={{ textShadow: '0 0 8px rgba(34,197,94,0.35)' }}
           >
             DeenSoft by POWER Project
@@ -109,7 +116,7 @@ export const LoginPage = () => {
                 <div className="text-center">
                   <div className="text-4xl mb-3">{option.icon}</div>
                   <h3 className="text-lg font-semibold mb-2">{option.title}</h3>
-                  <p className="text-sm opacity-80">{option.description}</p>
+                  <p className="text-sm opacity-80 whitespace-pre-line">{option.description}</p>
                 </div>
             </button>
             ))}

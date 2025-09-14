@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage'
 import { TeacherPortal } from './components/TeacherPortal'
 import { ParentPortal } from './components/ParentPortal'
 import { NazimPortal } from './components/NazimPortal'
+import { RaisJamiaPortal } from './components/RaisJamiaPortal'
 import { ManagementPortal } from './components/ManagementPortal'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -58,10 +59,11 @@ function App() {
         return <ParentPortal />;
       case 'nazim':
         return <NazimPortal />;
+      case 'raises_jamia':
+        return <RaisJamiaPortal />;
       case 'management':
       case 'admin':
       case 'mudir':
-      case 'raises_jamia':
       case 'shaikul_hadees':
       case 'senior_mentor':
         return <ManagementPortal />;

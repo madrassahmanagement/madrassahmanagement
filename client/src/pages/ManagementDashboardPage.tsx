@@ -74,7 +74,7 @@ export const ManagementDashboardPage = () => {
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-red-500 to-pink-600 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold mb-2">
+        <h1 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
           Assalam-u-Alaikum, {user?.firstName}! ⚙️
         </h1>
         <p className="text-red-100">

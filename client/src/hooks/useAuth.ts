@@ -15,7 +15,17 @@ export const useAuth = () => {
       const role = storedRole as any;
       const mockUser = {
         id: '1',
-        firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
+        firstName: role === 'student' 
+          ? 'Student' 
+          : role === 'teacher' 
+          ? 'Teacher' 
+          : role === 'nazim' 
+          ? 'Nazim' 
+          : role === 'parent' 
+          ? 'Parent' 
+          : role === 'raises_jamia'
+          ? 'Rais e Jamia'
+          : 'Admin',
         lastName: 'User',
         email: 'admin@madrassah.com',
         phone: '+1234567890',
@@ -43,7 +53,17 @@ export const useAuth = () => {
     // Create mock user (simplified for demo)
     const mockUser: User = {
       id: '1',
-      firstName: role === 'student' ? 'Student' : role === 'teacher' ? 'Teacher' : role === 'nazim' ? 'Nazim' : role === 'parent' ? 'Parent' : 'Admin',
+      firstName: role === 'student' 
+        ? 'Student' 
+        : role === 'teacher' 
+        ? 'Teacher' 
+        : role === 'nazim' 
+        ? 'Nazim' 
+        : role === 'parent' 
+        ? 'Parent' 
+        : role === 'raises_jamia'
+        ? 'Rais e Jamia'
+        : 'Admin',
       lastName: 'User',
       email: email,
       phone: '+1234567890',
