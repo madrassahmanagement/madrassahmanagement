@@ -12,6 +12,7 @@ import { NamazPage } from '../pages/NamazPage';
 import { IslamicStudiesPage } from '../pages/IslamicStudiesPage';
 import { DisciplinePage } from '../pages/DisciplinePage';
 import { FitnessPage } from '../pages/FitnessPage';
+import { StaffAttendancePage } from '../pages/StaffAttendancePage';
 import { ParentPortalPage } from '../pages/ParentPortalPage';
 import { ReportsPage } from '../pages/ReportsPage';
 import { SettingsPage } from '../pages/SettingsPage';
@@ -48,6 +49,7 @@ export const NazimPortal = () => {
                 <Route path="/islamic-studies" element={<IslamicStudiesPage />} />
                 <Route path="/discipline" element={<DisciplinePage />} />
                 <Route path="/fitness" element={<FitnessPage />} />
+                <Route path="/staff-attendance" element={<StaffAttendancePage />} />
                 <Route path="/parent-portal" element={<ParentPortalPage />} />
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
