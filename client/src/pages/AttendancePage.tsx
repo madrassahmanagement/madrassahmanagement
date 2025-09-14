@@ -40,20 +40,47 @@ export const AttendancePage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedClass, setSelectedClass] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [showMarkAttendance, setShowMarkAttendance] = useState(false);
+  const [showMarkAttendance, setShowMarkAttendance] = useState(true);
+  const [isDirty, setIsDirty] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<number>(new Date().getDate());
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1); // 1-12
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   // Load students and attendance records
   useEffect(() => {
     const loadData = () => {
       try {
-        // Load students
+        // Load students (seed demo data if none exist)
+        let parsedStudents: Student[] = [];
         const storedStudents = localStorage.getItem('students');
         if (storedStudents) {
-          const parsedStudents = JSON.parse(storedStudents);
-          setStudents(parsedStudents);
-          if (parsedStudents.length > 0 && !selectedClass) {
-            setSelectedClass(parsedStudents[0].currentClass);
+          try {
+            parsedStudents = JSON.parse(storedStudents);
+          } catch (e) {
+            parsedStudents = [];
           }
+        }
+
+        if (!parsedStudents || parsedStudents.length === 0) {
+          const demoStudents: Student[] = [
+            { id: 's1', studentId: '2024-001', user: { firstName: 'Ahmed', lastName: 'Ali' }, currentClass: 'Class 1', section: 'A' },
+            { id: 's2', studentId: '2024-002', user: { firstName: 'Aisha', lastName: 'Khan' }, currentClass: 'Class 1', section: 'A' },
+            { id: 's3', studentId: '2024-003', user: { firstName: 'Bilal', lastName: 'Ahmed' }, currentClass: 'Class 1', section: 'A' },
+            { id: 's4', studentId: '2024-004', user: { firstName: 'Fatima', lastName: 'Noor' }, currentClass: 'Class 1', section: 'B' },
+            { id: 's5', studentId: '2024-005', user: { firstName: 'Hamza', lastName: 'Iqbal' }, currentClass: 'Class 1', section: 'B' },
+            { id: 's6', studentId: '2024-006', user: { firstName: 'Sara', lastName: 'Malik' }, currentClass: 'Class 2', section: 'A' },
+            { id: 's7', studentId: '2024-007', user: { firstName: 'Umar', lastName: 'Farooq' }, currentClass: 'Class 2', section: 'A' },
+            { id: 's8', studentId: '2024-008', user: { firstName: 'Zainab', lastName: 'Hassan' }, currentClass: 'Class 2', section: 'A' },
+            { id: 's9', studentId: '2024-009', user: { firstName: 'Yousuf', lastName: 'Raza' }, currentClass: 'Class 2', section: 'B' },
+            { id: 's10', studentId: '2024-010', user: { firstName: 'Maryam', lastName: 'Javed' }, currentClass: 'Class 2', section: 'B' },
+          ];
+          localStorage.setItem('students', JSON.stringify(demoStudents));
+          parsedStudents = demoStudents;
+        }
+
+        setStudents(parsedStudents);
+        if (parsedStudents.length > 0 && !selectedClass) {
+          setSelectedClass(parsedStudents[0].currentClass);
         }
 
         // Load attendance records
@@ -61,6 +88,7 @@ export const AttendancePage = () => {
         if (storedAttendance) {
           setAttendanceRecords(JSON.parse(storedAttendance));
         }
+        setIsDirty(false);
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error('Failed to load data');
@@ -71,6 +99,44 @@ export const AttendancePage = () => {
 
     loadData();
   }, [selectedClass]);
+
+  // Helpers for day/month/year selector
+  const getDaysInMonth = (year: number, month1to12: number) => new Date(year, month1to12, 0).getDate();
+  const monthNames = [
+    'January','February','March','April','May','June','July','August','September','October','November','December'
+  ];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+  const daysInSelected = getDaysInMonth(selectedYear, selectedMonth);
+
+  // Keep day within valid range when month/year changes and sync ISO date
+  useEffect(() => {
+    const safeDay = Math.min(selectedDay, daysInSelected);
+    if (safeDay !== selectedDay) {
+      setSelectedDay(safeDay);
+    }
+    const mm = String(selectedMonth).padStart(2, '0');
+    const dd = String(safeDay).padStart(2, '0');
+    const iso = `${selectedYear}-${mm}-${dd}`;
+    if (iso !== selectedDate) {
+      setSelectedDate(iso);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedYear, selectedMonth, selectedDay]);
+
+  // When selectedDate changes (e.g., native input), sync day/month/year
+  useEffect(() => {
+    const d = new Date(selectedDate);
+    if (!isNaN(d.getTime())) {
+      const y = d.getFullYear();
+      const m = d.getMonth() + 1;
+      const dy = d.getDate();
+      if (y !== selectedYear) setSelectedYear(y);
+      if (m !== selectedMonth) setSelectedMonth(m);
+      if (dy !== selectedDay) setSelectedDay(dy);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
 
   const classes = Array.from(new Set(students.map(s => s.currentClass)));
 
@@ -111,7 +177,7 @@ export const AttendancePage = () => {
     }
 
     setAttendanceRecords(updatedRecords);
-    localStorage.setItem('attendance', JSON.stringify(updatedRecords));
+    setIsDirty(true);
     
     const statusText = status.charAt(0).toUpperCase() + status.slice(1);
     toast.success(`${student.user.firstName} marked as ${statusText}`);
@@ -226,6 +292,40 @@ export const AttendancePage = () => {
               ))}
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Set by Day / Month / Year
+            </label>
+            <div className="flex gap-2">
+              <select
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(Number(e.target.value))}
+                className="block w-1/3 border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              >
+                {Array.from({ length: daysInSelected }, (_, i) => i + 1).map(d => (
+                  <option key={d} value={d}>{String(d).padStart(2, '0')}</option>
+                ))}
+              </select>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="block w-1/3 border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              >
+                {monthNames.map((m, idx) => (
+                  <option key={m} value={idx + 1}>{m}</option>
+                ))}
+              </select>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="block w-1/3 border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              >
+                {years.map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -332,8 +432,60 @@ export const AttendancePage = () => {
       {showMarkAttendance && (
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
+            {/* Bulk Actions */}
+            <div className="flex flex-wrap items-center gap-2 mb-4 justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-gray-600 mr-2">Bulk mark:</span>
+                <button
+                  onClick={() => filteredStudents.forEach(s => markAttendance(s.id, 'present'))}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium bg-green-50 text-green-700 hover:bg-green-100"
+                >
+                  Mark All Present
+                </button>
+                <button
+                  onClick={() => filteredStudents.forEach(s => markAttendance(s.id, 'absent'))}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium bg-red-50 text-red-700 hover:bg-red-100"
+                >
+                  Mark All Absent
+                </button>
+                <button
+                  onClick={() => filteredStudents.forEach(s => markAttendance(s.id, 'late'))}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+                >
+                  Mark All Late
+                </button>
+                <button
+                  onClick={() => {
+                    const remaining = attendanceRecords.filter(r => new Date(r.date).toISOString().split('T')[0] !== selectedDate || (selectedClass && r.className !== selectedClass));
+                    setAttendanceRecords(remaining);
+                    setIsDirty(true);
+                    toast.success('Cleared today\'s marks for this class');
+                  }}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium bg-gray-50 text-gray-700 hover:bg-gray-100"
+                >
+                  Clear Today
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                {isDirty && (
+                  <span className="text-xs text-amber-600">Unsaved changes</span>
+                )}
+                <button
+                  onClick={() => {
+                    localStorage.setItem('attendance', JSON.stringify(attendanceRecords));
+                    setIsDirty(false);
+                    const prettyDate = new Date(selectedDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' });
+                    toast.success(`Attendance saved for ${prettyDate}${selectedClass ? ` • ${selectedClass}` : ''}`);
+                  }}
+                  disabled={!isDirty}
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium text-white ${isDirty ? 'bg-primary-600 hover:bg-primary-700' : 'bg-gray-300 cursor-not-allowed'}`}
+                >
+                  Save Attendance
+                </button>
+              </div>
+            </div>
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Mark Attendance - {new Date(selectedDate).toLocaleDateString()}
+              Mark Attendance - {new Date(selectedDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' })}
             </h3>
             
             <div className="overflow-x-auto">
@@ -381,34 +533,30 @@ export const AttendancePage = () => {
                           {attendance?.timeIn || '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
+                          <div className="flex flex-wrap gap-2">
                             <button
                               onClick={() => markAttendance(student.id, 'present')}
-                              className="text-green-600 hover:text-green-900"
-                              title="Mark Present"
+                              className="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-green-50 text-green-700 hover:bg-green-100"
                             >
-                              <CheckCircleIcon className="h-4 w-4" />
+                              <CheckCircleIcon className="h-4 w-4 mr-1" /> Present
                             </button>
                             <button
                               onClick={() => markAttendance(student.id, 'absent')}
-                              className="text-red-600 hover:text-red-900"
-                              title="Mark Absent"
+                              className="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100"
                             >
-                              <XCircleIcon className="h-4 w-4" />
+                              <XCircleIcon className="h-4 w-4 mr-1" /> Absent
                             </button>
                             <button
                               onClick={() => markAttendance(student.id, 'late')}
-                              className="text-yellow-600 hover:text-yellow-900"
-                              title="Mark Late"
+                              className="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
                             >
-                              <ClockIcon className="h-4 w-4" />
+                              <ClockIcon className="h-4 w-4 mr-1" /> Late
                             </button>
                             <button
                               onClick={() => markAttendance(student.id, 'excused')}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="Mark Excused"
+                              className="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100"
                             >
-                              <ExclamationTriangleIcon className="h-4 w-4" />
+                              <ExclamationTriangleIcon className="h-4 w-4 mr-1" /> Excused
                             </button>
                           </div>
                         </td>
@@ -434,7 +582,7 @@ export const AttendancePage = () => {
               <ClipboardDocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">No attendance records</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Mark attendance for {new Date(selectedDate).toLocaleDateString()} to see records.
+                Mark attendance for {new Date(selectedDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' })} to see records.
               </p>
             </div>
           ) : (
