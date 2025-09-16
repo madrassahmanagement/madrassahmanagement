@@ -22,14 +22,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle auth errors
+// Handle auth errors (do not auto-redirect; let pages handle gracefully)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
+    // Previously we redirected to /login on 401 which caused unwanted navigation
+    // when using mock auth. Keep the error for page-level handling.
     return Promise.reject(error);
   }
 );
@@ -108,18 +106,15 @@ export const namazAPI = {
     api.put(`/namaz/${id}`, namazData),
 };
 
-// Islamic Studies API
+// Islamic Studies API (aligned with server routes)
 export const islamicStudiesAPI = {
-  recordSabaq: (sabaqData: any) =>
-    api.post('/islamic-studies/sabaq', sabaqData),
-  recordSabqi: (sabqiData: any) =>
-    api.post('/islamic-studies/sabqi', sabqiData),
-  recordManzil: (manzilData: any) =>
-    api.post('/islamic-studies/manzil', manzilData),
-  getByStudent: (studentId: string, params?: any) =>
-    api.get(`/islamic-studies/student/${studentId}`, { params }),
-  getByDate: (date: string, classId?: string) =>
-    api.get('/islamic-studies', { params: { date, classId } }),
+  // Create new record for a date
+  record: (data: any) => api.post('/islamic-studies/record', data),
+  // Get a student's record for a specific date (YYYY-MM-DD)
+  getByStudentDate: (studentId: string, date: string) =>
+    api.get(`/islamic-studies/student/${studentId}/${date}`),
+  // Update an existing record
+  update: (recordId: string, data: any) => api.put(`/islamic-studies/${recordId}`, data),
 };
 
 // Classes API

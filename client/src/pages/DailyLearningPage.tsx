@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { DailyLearning } from '../types';
+import { DailyLearning, Student } from '../types';
+import { studentsAPI, islamicStudiesAPI } from '../services/api';
 
 export const DailyLearningPage = () => {
   const [dailyLearning, setDailyLearning] = useState<DailyLearning[]>([]);
@@ -7,6 +8,9 @@ export const DailyLearningPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState<DailyLearning | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [studentQuery, setStudentQuery] = useState('');
+  const [studentResults, setStudentResults] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   // Mock data for demonstration
   useEffect(() => {
@@ -54,6 +58,58 @@ export const DailyLearningPage = () => {
     setIsLoading(false);
   }, [selectedDate]);
 
+  // Student search by name or roll number
+  useEffect(() => {
+    let cancelled = false;
+    const fetchStudents = async () => {
+      try {
+        if (!studentQuery || studentQuery.trim().length < 2) {
+          setStudentResults([]);
+          return;
+        }
+        const res = await studentsAPI.getAll({ search: studentQuery });
+        const data = (res.data?.students || res.data || []) as any[];
+        const transformed = data.map((s: any) => ({
+          id: s._id || s.id,
+          studentId: s.studentId || '',
+          admissionNumber: s.admissionNumber || '',
+          admissionDate: s.admissionDate || new Date().toISOString(),
+          currentClass: s.currentClass?.name || s.currentClass || 'Not Assigned',
+          section: s.section || 'A',
+          rollNumber: s.rollNumber || '',
+          guardian: s.guardian || { father: { name: '', phone: '' }, mother: { name: '', phone: '' } },
+          academicYear: s.academicYear || new Date().getFullYear().toString(),
+          quranLevel: s.quranLevel || 'beginner',
+          memorizationProgress: s.memorizationProgress || 0,
+          health: s.health || { allergies: [], medicalConditions: [] },
+          overallPerformance: s.overallPerformance || 0,
+          attendancePercentage: s.attendancePercentage || 0,
+          namazPercentage: s.namazPercentage || 0,
+          status: s.isActive !== false ? 'active' : 'inactive',
+          feeStatus: (s.feeStatus ?? 'pending'),
+          monthlyFee: s.monthlyFee || 0,
+          user: {
+            id: s.user?._id || s._id || s.id,
+            firstName: s.user?.firstName || s.firstName || 'Student',
+            lastName: s.user?.lastName || s.lastName || '',
+            email: s.user?.email || s.email || '',
+            phone: s.user?.phone || s.phone || '',
+            role: 'student',
+            language: 'en',
+            isActive: s.isActive !== false,
+            createdAt: s.createdAt || new Date().toISOString(),
+            updatedAt: s.updatedAt || new Date().toISOString(),
+          },
+        })) as Student[];
+        if (!cancelled) setStudentResults(transformed);
+      } catch (e) {
+        if (!cancelled) setStudentResults([]);
+      }
+    };
+    fetchStudents();
+    return () => { cancelled = true; };
+  }, [studentQuery]);
+
   const handleAddRecord = (recordData: Omit<DailyLearning, 'id'>) => {
     const newRecord: DailyLearning = {
       ...recordData,
@@ -97,12 +153,28 @@ export const DailyLearningPage = () => {
             onChange={(e) => setSelectedDate(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
           />
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-          >
-            Add Learning Record
-          </button>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search student by name or roll no."
+              value={studentQuery}
+              onChange={(e) => setStudentQuery(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white w-64"
+            />
+            {studentResults.length > 0 && (
+              <div className="absolute mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md max-h-64 overflow-auto z-10">
+                {studentResults.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => { setSelectedStudent(s); setStudentQuery(`${s.user.firstName} ${s.user.lastName} (${s.rollNumber})`); setStudentResults([]); setShowAddModal(true); }}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm"
+                  >
+                    {s.user.firstName} {s.user.lastName} • {s.currentClass}-{s.section} • Roll {s.rollNumber}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -213,9 +285,12 @@ export const DailyLearningPage = () => {
       {(showAddModal || editingRecord) && (
         <DailyLearningModal
           record={editingRecord}
+          student={selectedStudent || undefined}
+          selectedDate={selectedDate}
           onClose={() => {
             setShowAddModal(false);
             setEditingRecord(null);
+            setSelectedStudent(null);
           }}
           onSave={editingRecord ? handleEditRecord : handleAddRecord}
         />
@@ -226,16 +301,18 @@ export const DailyLearningPage = () => {
 
 interface DailyLearningModalProps {
   record?: DailyLearning | null;
+  student?: Student;
+  selectedDate: string;
   onClose: () => void;
   onSave: (record: DailyLearning | Omit<DailyLearning, 'id'>) => void;
 }
 
-const DailyLearningModal = ({ record, onClose, onSave }: DailyLearningModalProps) => {
+const DailyLearningModal = ({ record, student, selectedDate, onClose, onSave }: DailyLearningModalProps) => {
   const [formData, setFormData] = useState({
-    student: record?.student || '',
-    class: record?.class || '',
-    section: record?.section || '',
-    date: record?.date || new Date().toISOString().split('T')[0],
+    student: record?.student || (student ? `${student.user.firstName} ${student.user.lastName}` : ''),
+    class: record?.class || (student ? student.currentClass : ''),
+    section: record?.section || (student ? student.section : ''),
+    date: record?.date || selectedDate,
     muatlia: {
       completed: record?.muatlia.completed || false,
       description: record?.muatlia.description || '',
@@ -276,9 +353,90 @@ const DailyLearningModal = ({ record, onClose, onSave }: DailyLearningModalProps
     markedBy: record?.markedBy || ''
   });
 
+  // Load existing record for selected student/date
+  useEffect(() => {
+    const loadExisting = async () => {
+      try {
+        if (!student) return;
+        const ymd = formData.date;
+        const res = await islamicStudiesAPI.getByStudentDate(student.id, ymd);
+        const record = res.data?.record || res.data;
+        if (!record) return;
+        setFormData({
+          student: `${student.user.firstName} ${student.user.lastName}`,
+          class: student.currentClass,
+          section: student.section,
+          date: ymd,
+          muatlia: {
+            completed: record.muatlia?.completed ?? false,
+            description: record.muatlia?.description ?? '',
+            performance: record.muatlia?.performance ?? 'good',
+            notes: record.muatlia?.notes ?? ''
+          },
+          sabaq: {
+            surah: {
+              name: record.sabaq?.surah?.name ?? '',
+              number: record.sabaq?.surah?.number ?? 1
+            },
+            fromAyah: record.sabaq?.fromAyah ?? 1,
+            toAyah: record.sabaq?.toAyah ?? 1,
+            performance: record.sabaq?.performance ?? 'good',
+            notes: record.sabaq?.notes ?? ''
+          },
+          sabqi: {
+            surah: {
+              name: record.sabqi?.surah?.name ?? '',
+              number: record.sabqi?.surah?.number ?? 1
+            },
+            fromAyah: record.sabqi?.fromAyah ?? 1,
+            toAyah: record.sabqi?.toAyah ?? 1,
+            performance: record.sabqi?.performance ?? 'good',
+            mistakes: record.sabqi?.mistakes ?? [],
+            notes: record.sabqi?.notes ?? ''
+          },
+          manzil: {
+            surah: {
+              name: record.manzil?.surah?.name ?? '',
+              number: record.manzil?.surah?.number ?? 1
+            },
+            fromAyah: record.manzil?.fromAyah ?? 1,
+            toAyah: record.manzil?.toAyah ?? 1,
+            performance: record.manzil?.performance ?? 'good',
+            notes: record.manzil?.notes ?? ''
+          },
+          markedBy: record.markedBy || ''
+        });
+      } catch (e) {
+        // ignore if none exists
+      }
+    };
+    loadExisting();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [student, selectedDate]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Persist to backend
+    const payload = {
+      studentId: (student as any)?.id,
+      date: formData.date,
+      classId: undefined as any,
+      section: formData.section,
+      sabaq: formData.sabaq,
+      sabqi: formData.sabqi,
+      manzil: formData.manzil,
+    };
+    if ((student as any)?.currentClass && (student as any)?.currentClass.length === 24) {
+      payload.classId = (student as any).currentClass;
+    }
+    // Optimistically save via parent handler and rely on server as future improvement
     onSave(formData);
+    // Attempt API call (non-blocking UI)
+    try {
+      if (payload.studentId && payload.section) {
+        islamicStudiesAPI.record(payload);
+      }
+    } catch {}
   };
 
   return (

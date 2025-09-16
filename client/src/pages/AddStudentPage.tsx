@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { studentsAPI } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 import { 
   UserCircleIcon,
   AcademicCapIcon,
@@ -42,6 +43,7 @@ interface StudentFormData {
 
 export const AddStudentPage = () => {
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
@@ -157,6 +159,13 @@ export const AddStudentPage = () => {
       </div>
     </div>
   );
+
+  if (isLoading) {
+    return null;
+  }
+  if (!user || (user.role !== 'nazim' && user.role !== 'raises_jamia')) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto">

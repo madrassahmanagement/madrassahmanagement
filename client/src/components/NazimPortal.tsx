@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { NazimDashboardPage } from '../pages/NazimDashboardPage';
 import { StudentsPage } from '../pages/StudentsPage';
+import { AddStudentPage } from '../pages/AddStudentPage';
 import { TeachersPage } from '../pages/TeachersPage';
 import { TeacherTrackingPage } from '../pages/TeacherTrackingPage';
 import { SectionsPage } from '../pages/SectionsPage';
@@ -39,6 +40,7 @@ export const NazimPortal = () => {
               <Routes>
                 <Route path="/" element={<NazimDashboardPage />} />
                 <Route path="/students" element={<StudentsPage />} />
+                <Route path="/students/add" element={<AddStudentPage />} />
                 <Route path="/teachers" element={<TeachersPage />} />
                 <Route path="/teacher-tracking" element={<TeacherTrackingPage />} />
                 <Route path="/sections" element={<SectionsPage />} />

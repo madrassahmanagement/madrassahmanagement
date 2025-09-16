@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { ManagementDashboardPage } from '../pages/ManagementDashboardPage';
 import { StudentsPage } from '../pages/StudentsPage';
+import { AddStudentPage } from '../pages/AddStudentPage';
 import { TeachersPage } from '../pages/TeachersPage';
 import { TeacherTrackingPage } from '../pages/TeacherTrackingPage';
 import { ExamManagementPage } from '../pages/ExamManagementPage';
@@ -45,6 +46,7 @@ export const RaisJamiaPortal = () => {
               <Routes>
                 <Route path="/" element={<ManagementDashboardPage />} />
                 <Route path="/students" element={<StudentsPage />} />
+                <Route path="/students/add" element={<AddStudentPage />} />
                 <Route path="/teachers" element={<TeachersPage />} />
                 <Route path="/teacher-tracking" element={<TeacherTrackingPage />} />
                 <Route path="/exam-management" element={<ExamManagementPage />} />

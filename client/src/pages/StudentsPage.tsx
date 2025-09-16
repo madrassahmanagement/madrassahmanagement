@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { studentsAPI } from '../services/api';
@@ -22,6 +23,7 @@ import {
 import { Student } from '../types';
 
 export const StudentsPage = () => {
+  const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,7 +72,7 @@ export const StudentsPage = () => {
           attendancePercentage: student.attendancePercentage || 0,
           namazPercentage: student.namazPercentage || 0,
           status: student.isActive !== false ? 'active' : 'inactive',
-          feeStatus: student.feeStatus || 'pending',
+          feeStatus: ((student.feeStatus ?? 'pending') as Student['feeStatus']),
           monthlyFee: student.monthlyFee || 2000,
           user: {
             id: student._id || student.id,
@@ -152,7 +154,7 @@ export const StudentsPage = () => {
   };
 
   // Handle fee status update
-  const handleFeeStatusUpdate = (studentId: string, newStatus: string) => {
+  const handleFeeStatusUpdate = (studentId: string, newStatus: Student['feeStatus']) => {
     setStudents(students.map(student => 
       student.id === studentId 
         ? { ...student, feeStatus: newStatus }
@@ -190,14 +192,16 @@ export const StudentsPage = () => {
           </p>
         </div>
         <div className="flex sm:mt-0">
-          <Link
-            to="/students/add"
-            className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-          >
-            <PlusIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Add Student</span>
-            <span className="sm:hidden">Add</span>
-          </Link>
+          {(user?.role === 'nazim' || user?.role === 'raises_jamia') && (
+            <Link
+              to="/students/add"
+              className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              <PlusIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Add Student</span>
+              <span className="sm:hidden">Add</span>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -286,7 +290,7 @@ export const StudentsPage = () => {
                 : 'Try adjusting your search or filter criteria.'
               }
             </p>
-            {students.length === 0 && (
+            {students.length === 0 && (user?.role === 'nazim' || user?.role === 'raises_jamia') && (
               <div className="mt-6">
                 <Link
                   to="/students/add"

@@ -8,8 +8,8 @@ const { authenticateToken, authorizeRole, canAccessStudent } = require('../middl
 
 const router = express.Router();
 
-// Get all students (Admin only)
-router.get('/', authenticateToken, authorizeRole('admin', 'teacher'), async (req, res) => {
+// Get all students (allow relevant roles)
+router.get('/', authenticateToken, authorizeRole('admin', 'teacher', 'nazim', 'management', 'raises_jamia'), async (req, res) => {
   try {
     const { page = 1, limit = 10, classId, section, status, search } = req.query;
     const query = {};
@@ -92,8 +92,8 @@ router.get('/:studentId', authenticateToken, canAccessStudent, async (req, res) 
   }
 });
 
-// Create new student
-router.post('/', authenticateToken, authorizeRole('admin'), [
+// Create new student (nazim and rais e jamia only)
+router.post('/', authenticateToken, authorizeRole('nazim', 'raises_jamia'), [
   body('firstName').trim().isLength({ min: 2 }).withMessage('First name is required'),
   body('lastName').trim().isLength({ min: 2 }).withMessage('Last name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
