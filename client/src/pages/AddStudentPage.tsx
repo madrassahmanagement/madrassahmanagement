@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { studentsAPI } from '../services/api';
+import { studentsAPI, classesAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { 
   UserCircleIcon,
@@ -34,6 +34,7 @@ interface StudentFormData {
   emergencyContactPhone: string;
   emergencyContactRelationship: string;
   classId: string;
+  section: string;
   admissionDate: string;
   bloodGroup: string;
   allergies: string;
@@ -47,6 +48,7 @@ export const AddStudentPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
+  const [classes, setClasses] = useState<Array<{ id: string; name: string; sections: Array<{ name: string; maxStudents: number; currentStudents: number }> }>>([]);
 
   // Reusable input classes for consistent styling
   const inputClasses = "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-200";
@@ -56,23 +58,28 @@ export const AddStudentPage = () => {
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<StudentFormData>({
     defaultValues: {
       admissionDate: new Date().toISOString().split('T')[0],
-      monthlyFee: 2000
+      monthlyFee: 2000,
+      section: ''
     }
   });
 
-  // Mock classes data - in real app, this would come from API
-  const classes = [
-    { id: '1', name: 'Class 1A', level: 'Primary', section: 'A' },
-    { id: '2', name: 'Class 1B', level: 'Primary', section: 'B' },
-    { id: '3', name: 'Class 2A', level: 'Primary', section: 'A' },
-    { id: '4', name: 'Class 2B', level: 'Primary', section: 'B' },
-    { id: '5', name: 'Class 3A', level: 'Primary', section: 'A' },
-    { id: '6', name: 'Class 3B', level: 'Primary', section: 'B' },
-    { id: '7', name: 'Class 4A', level: 'Intermediate', section: 'A' },
-    { id: '8', name: 'Class 4B', level: 'Intermediate', section: 'B' },
-    { id: '9', name: 'Class 5A', level: 'Intermediate', section: 'A' },
-    { id: '10', name: 'Class 5B', level: 'Intermediate', section: 'B' },
-  ];
+  // Load classes from API
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await classesAPI.getAll();
+        const list = (res.data?.classes || res.data || []).map((c: any) => ({
+          id: c._id || c.id,
+          name: c.name,
+          sections: c.sections || []
+        }));
+        setClasses(list);
+      } catch (e) {
+        toast.error('Failed to load classes');
+      }
+    };
+    load();
+  }, []);
 
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -87,8 +94,8 @@ export const AddStudentPage = () => {
         phone: data.phone,
         dateOfBirth: data.dateOfBirth,
         address: data.address,
-        currentClass: data.classId,
-        section: 'A', // Default section
+        currentClass: data.classId, // must be a MongoId
+        section: data.section,
         rollNumber: String(Math.floor(Math.random() * 50) + 1).padStart(3, '0'),
         guardian: {
           father: {
@@ -509,12 +516,32 @@ export const AddStudentPage = () => {
                   <option value="">Select Class</option>
                   {classes.map((cls) => (
                     <option key={cls.id} value={cls.id}>
-                      {cls.name} - {cls.level} (Section {cls.section})
+                      {cls.name}
                     </option>
                   ))}
                 </select>
                 {errors.classId && (
                   <p className="mt-1 text-sm text-red-600">{errors.classId.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Section *
+                </label>
+                <select
+                  {...register('section', { required: 'Section is required' })}
+                  className={selectClasses}
+                >
+                  <option value="">Select Section</option>
+                  {classes
+                    .find(c => c.id === watch('classId'))?.sections
+                    .map((s) => (
+                      <option key={s.name} value={s.name}>{s.name}</option>
+                    ))}
+                </select>
+                {errors.section && (
+                  <p className="mt-1 text-sm text-red-600">{errors.section.message}</p>
                 )}
               </div>
 
@@ -531,7 +558,7 @@ export const AddStudentPage = () => {
                   <p className="mt-1 text-sm text-red-600">{errors.admissionDate.message}</p>
                 )}
               </div>
-
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Monthly Fee (PKR)
